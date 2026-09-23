@@ -3,7 +3,7 @@ import os, redis
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 ABH = TelegramClient(
-    "BUTTON_BOT",
+    "BOT_TOKEN",
     api_id,
     api_hash,
     connection=connection.ConnectionTcpFull,
