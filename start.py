@@ -1,24 +1,34 @@
 from helpers import *
 from client import *
 import re
-@BUTTON_BOT.on(events.NewMessage(pattern=r'^/start'))
-async def start(e):
-    if not e.is_private:return
-    photo = await get_profile_photo(e, BUTTON_BOT)
-    if photo:
-        await BUTTON_BOT.send_file(e.chat_id, file=photo, caption=f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط ارسل `الاوامر`', reply_to=e.id)
-    else:
-        await BUTTON_BOT.send_message(e.chat_id, message=f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر`', reply_to=e.id)
-@BUTTON_BOT.on(events.NewMessage)
+@ABH.on(events.NewMessage)
 async def is_user_check(e):
-    if not e.is_private:
-        raise events.StopPropagation
-    user = await is_user(e, BUTTON_BOT)
-    if not user:
-        raise events.StopPropagation
-@BUTTON_BOT.on(events.NewMessage(pattern=r'^الاوامر'))
+    await is_user(e)
+@ABH.on(events.NewMessage(pattern=r'^/start'))
+async def start(e):
+    await send(e, 'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر`')
+message = {}
+@ABH.on(events.NewMessage(pattern=r'^انشاء رسالة$'))
+async def create_message(e):
+    session = message.get(e.sender_id)
+    text = session.get('text')
+    media = session.get('media')
+    buttons = session.get('buttons')
+    b = [
+        [Button.inline('تعيين نص' if not text else 'اضف او تعديل النص' , data='set_text', icon=5280993797482750213, style=green if not text else blue),
+        Button.inline('تعيين ميديا' if not text else 'اضف او تعديل الميديا' , data='set_media', icon=5280993797482750213, style= green if not text else blue),
+        Button.inline('تعيين زر' if not text else 'اضف او تعديل الزر' , data='set_url', icon=5280993797482750213, style= green if not text else blue),],
+        [
+        Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),
+        ],
+        [
+        Button.inline('تم', data='done', icon=5854724316385512963, style=green),
+        ]
+    ]
+    await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=b)    
+@ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
-    if not e.is_private:return   
     await e.reply(
         f"<b>📋 الأوامر المتاحة كالأتي:</b>\n\n"
         f"تكتب كلمة <code>زر</code> وبعدها رابط الزر، مثال:\n"
@@ -60,7 +70,7 @@ def custom_emoji_id(entities, raw_text, offset_cp, length):
         if isinstance(ent, MessageEntityCustomEmoji) and ent.offset == off:
             return ent.document_id
     return None
-@BUTTON_BOT.on(events.NewMessage(pattern=r"^زر(?:\s+(.+))?$"))
+@ABH.on(events.NewMessage(pattern=r"^زر(?:\s+(.+))?$"))
 async def handler(event):
     full_text = event.pattern_match.group(1)
     if not full_text:
@@ -145,7 +155,7 @@ async def handler(event):
         else:
             return await event.reply("لا يمكن نسخ نوع هذه الرسالة.")
         if warning:
-            await BUTTON_BOT.send_message(event.chat_id, f"تم إنشاء الأزرار بنجاح.{warning}")
+            await ABH.send_message(event.chat_id, f"تم إنشاء الأزرار بنجاح.{warning}")
     except Exception:
         return await event.reply("حدث خطأ أثناء إنشاء الرسالة والأزرار.")
-print('button_bot شغال')
+print('ABH شغال')
