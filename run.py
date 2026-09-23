@@ -19,3 +19,14 @@ async def run_button():
         if ABH.is_connected():
             await ABH.disconnect()
             print("✅ تم فصل التوصيل بنجاح.")
+if __name__ == "__main__":
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(run_button())
+    except KeyboardInterrupt:
+        print("\nتم إيقاف البوت يدوياً.")
+    except Exception:
+        print(traceback.format_exc())
+    finally:
+        loop.close()
