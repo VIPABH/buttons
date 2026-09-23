@@ -1,9 +1,4 @@
-import os
-import sys
-import asyncio
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from client import *
-from .button_bot import *
 async def run_button():
     button_token = os.getenv("BUTTON_BOT")
     if not button_token:
