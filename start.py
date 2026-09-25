@@ -25,7 +25,7 @@ async def create_message(e):
         Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
         [Button.inline('تم', data='done', icon=5854724316385512963, style=green),]]
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=b)
-@ABH.on(events.CallbackQuery(data='(set_|del)'))
+@ABH.on(events.CallbackQuery)
 async def create_message_claaback(e):
     data = e.data.decode('utf-8')
     print(data)
