@@ -17,9 +17,6 @@ async def run_button():
         print(f"❌ حدث خطأ غير متوقع في BUTTON_BOT: {e}")
     finally:
         print("\n🛑 جاري إغلاق بوت الأزرار...")
-        if ABH.is_connected():
-            await ABH.disconnect()
-            print("✅ تم فصل التوصيل بنجاح.")
 if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
