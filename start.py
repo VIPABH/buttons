@@ -8,7 +8,7 @@ async def is_user_check(e):
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
-    await send(e, 'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر`')
+    await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر`')
 message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم:https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 @ABH.on(events.NewMessage(pattern=r'^انشاء رسالة$'))
@@ -18,24 +18,17 @@ async def create_message(e):
         message[id] = {'text': '', 'media': [], 'buttons': []}
     session = message.get(e.sender_id)
     text = session.get('text')
-    b = [
-        [Button.inline('تعيين نص' if not text else 'اضف او تعديل النص' , data='set_text', icon=5280993797482750213, style=green if not text else blue),
-        Button.inline('تعيين ميديا' if not text else 'اضف او تعديل الميديا' , data='set_media', icon=5280993797482750213, style= green if not text else blue),
-        Button.inline('تعيين زر' if not text else 'اضف او تعديل الزر' , data='set_buttons', icon=5280993797482750213, style= green if not text else blue),],
-        [
-        Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),
-        ],
-        [
-        Button.inline('تم', data='done', icon=5854724316385512963, style=green),
-        ]
-    ]
-    media = session.get('media')
-    buttons = session.get('buttons')
+    b = [[Button.inline('تعيين نص' if not text else 'اضف او تعديل النص' , data='set_text', icon=5280993797482750213, style=blue if not text else green),
+        Button.inline('تعيين ميديا' if not text else 'اضف او تعديل الميديا' , data='set_media', icon=5280993797482750213, style= blue if not text else green),
+        Button.inline('تعيين زر' if not text else 'اضف او تعديل الزر' , data='set_buttons', icon=5280993797482750213, style= blue if not text else green),],
+        [Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
+        [Button.inline('تم', data='done', icon=5854724316385512963, style=green),]]
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=b)
 @ABH.on(events.CallbackQuery(data='(set_|del)'))
 async def create_message_claaback(e):
     data = e.data.decode('utf-8')
+    print(data)
     if e.sender_id not in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
     if data == 'del_all':
@@ -226,4 +219,3 @@ async def handler(event):
             await ABH.send_message(event.chat_id, f"تم إنشاء الأزرار بنجاح.{warning}")
     except Exception:
         return await event.reply("حدث خطأ أثناء إنشاء الرسالة والأزرار.")
-print('ABH شغال')
