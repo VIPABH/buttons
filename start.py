@@ -16,21 +16,23 @@ def buttons(e):
     text = session.get('text')
     media = session.get('media')
     button = session.get('buttons') or []
-    message_button = [
+    rows = []
+    rows.append([
         Button.inline('تعديل نص' if text else 'إضافة نص', data='set_text', icon=5280993797482750213, style=green if text else blue),
         Button.inline('تعديل ميديا' if media else 'إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),
-    ]
+    ])
     if len(button) <= 1:
-        message_button.append(
-        Button.inline('تعديل زر' if button else 'إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue))
-    del_button = [
+        rows.append([
+            Button.inline('تعديل زر' if button else 'إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)
+        ])
+    rows.append([
         Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
         Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),
-        ]
-    done_button = [
+    ])
+    rows.append([
         Button.inline('تم', data='done', icon=5854724316385512963, style=green)
-    ]
-    return [[message_button] + [del_button] + [done_button]]
+    ])
+    return rows
 @ABH.on(events.NewMessage(pattern=r'^/creat_message|انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
