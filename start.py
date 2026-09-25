@@ -56,8 +56,9 @@ async def _send(e):
         await ABH.send_message(e.chat_id, text=message[e.sender_id]['text'], buttons=b)
 processed_groups = set()
 async def small_filter(e):
-    step = message.get(e.sender_id, None).get('step', None)
-    if not step:return
+    session = message.get(e.sender_id, None)
+    if not session:return
+    session.get('step')
     text = e.text
     if step == 'text':
         message[e.sender_id]['text'] += text
