@@ -136,6 +136,7 @@ async def small_filter(e):
         button_name = message[e.sender_id]['temp_btn_name']
         del message[e.sender_id]['temp_btn_name']
         message[e.sender_id]['buttons'].append((button_name, text))
+        await _send(e)
         await e.reply('تم اضافة الزر', buttons=buttons(e))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
