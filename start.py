@@ -51,14 +51,9 @@ async def _send(e):
     raw_media = session.get('media') or []
     raw_buttons = session.get('buttons') or []
     formatted_buttons = []
-    for btn in raw_buttons:
-        if not btn:
-            continue
-        if isinstance(btn, (list, tuple)) and len(btn) >= 2:
-            name, target = str(btn[0]), str(btn[1])
-            formatted_buttons.append([Button.url(name, target)])
-        elif isinstance(btn, Button):
-            formatted_buttons.append([btn] if not isinstance(btn, list) else btn)
+    for item in raw_buttons:
+        name, url = item
+        formatted_buttons.append(Button.url(name, url))
     buttons_to_send = formatted_buttons if formatted_buttons else None
     if raw_media:
         processed_media = []
@@ -96,8 +91,8 @@ async def small_filter(e):
     if text == 'انشاء رسالة':return
     if step == 'text':
         message[e.sender_id]['text'] += text
-        await e.reply('تم اضافة النص', buttons=buttons(e))
         await _send(e)
+        await e.reply('تم اضافة النص', buttons=buttons(e))
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
@@ -107,18 +102,21 @@ async def small_filter(e):
             #         return
             #     processed_groups.add(gid)
             message[e.sender_id]['media'].append(await extract_media_data(e))
-            await e.reply('تم اضافة الميديا', buttons=buttons(e))
             await _send(e)
+            await e.reply('تم اضافة الميديا', buttons=buttons(e))
             del message[e.sender_id]['step']
         else:
-            await e.reply('عذرا عزيزي لازم ترسل ميديا مناسبة')
             await _send(e)
+            await e.reply('عذرا عزيزي لازم ترسل ميديا مناسبة')
             del message[e.sender_id]['step']
     elif step == 'buttons':
         if ':' in text:
-            message[e.sender_id]['buttons'].append(text.split(':'))
-            await e.reply('تم اضافة الزر', buttons=buttons(e))
+            name, url = text.split(':')
+            if not url.startswith(('http://', 'https://', 't.me', 'tg://')):
+                return await e.reply('الرابط غير صالح!')
+            message[e.sender_id]['buttons'].append((name, url))
             await _send(e)
+            await e.reply('تم اضافة الزر', buttons=buttons(e))
             del message[e.sender_id]['step']
         else:
             message[e.sender_id]['temp_btn_name'] = text
