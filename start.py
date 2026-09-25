@@ -1,7 +1,7 @@
 from telethon import events
 from helpers import *
 from client import *
-import re
+import re, asyncio
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
@@ -101,6 +101,7 @@ async def small_filter(e):
                 if gid in processed_groups:
                     return
                 processed_groups.add(gid)
+            await asyncio.sleep(0.1)
             await _send(e)
             await e.reply('تم اضافة الميديا', buttons=buttons(e))
             del message[e.sender_id]['step']
