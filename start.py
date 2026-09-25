@@ -49,7 +49,7 @@ async def _send(e):
             media = await get_input_media(message[e.sender_id]['media'])
         await ABH.send_file(e.chat_id, file=media, caption=message[e.sender_id]['text'], buttons=b)
     else:
-        await ABH.send_message(e.chat_id, text=message[e.sender_id]['text'], buttons=b)
+        await ABH.send_message(e.chat_id, message=message[e.sender_id]['text'], buttons=b)
 processed_groups = set()
 async def small_filter(e):
     session = message.get(e.sender_id, None)
