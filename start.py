@@ -11,19 +11,22 @@ async def start(e):
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر`')
 message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم:https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
+def buttons(e):
+    session = message.get(e.sender_id)
+    text = session.get('text')
+    media = session.get('media')
+    button = session.get('buttons')
+    b = [[Button.inline('تعيين نص' if not text else 'اضف نص' , data='set_text', icon=5280993797482750213, style=blue if not text else green),
+        Button.inline('تعيين ميديا' if not media else 'اضف ميديا' , data='set_media', icon=5280993797482750213, style= blue if not media else green),
+        Button.inline('تعيين زر' if not button else 'اضف زر' , data='set_buttons', icon=5280993797482750213, style= blue if not button else green),],
+        [Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
+        [Button.inline('تم', data='done', icon=5854724316385512963, style=green),]]
 @ABH.on(events.NewMessage(pattern=r'^انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
     if id not in message:
         message[id] = {'text': '', 'media': [], 'buttons': []}
-    session = message.get(e.sender_id)
-    text = session.get('text')
-    b = [[Button.inline('تعيين نص' if not text else 'اضف نص' , data='set_text', icon=5280993797482750213, style=blue if not text else green),
-        Button.inline('تعيين ميديا' if not text else 'اضف ميديا' , data='set_media', icon=5280993797482750213, style= blue if not text else green),
-        Button.inline('تعيين زر' if not text else 'اضف زر' , data='set_buttons', icon=5280993797482750213, style= blue if not text else green),],
-        [Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
-        [Button.inline('تم', data='done', icon=5854724316385512963, style=green),]]
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=b)
 @ABH.on(events.CallbackQuery(pattern='(set_|del)'))
 async def create_message_claaback(e):
@@ -52,10 +55,7 @@ async def _send(e):
             continue
         if isinstance(btn, (list, tuple)) and len(btn) >= 2:
             name, target = str(btn[0]), str(btn[1])
-            if target.startswith(('http://', 'https://', 't.me', 'tg://')):
-                formatted_buttons.append([Button.url(name, target)])
-            else:
-                formatted_buttons.append([Button.inline(name, data=target.encode('utf-8'))])
+            formatted_buttons.append([Button.url(name, target)])
         elif isinstance(btn, Button):
             formatted_buttons.append([btn] if not isinstance(btn, list) else btn)
     buttons_to_send = formatted_buttons if formatted_buttons else None
