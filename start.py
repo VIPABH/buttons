@@ -21,7 +21,7 @@ def buttons(e):
         Button.inline('تعديل نص' if text else 'إضافة نص', data='set_text', icon=5280993797482750213, style=green if text else blue),
         Button.inline('تعديل ميديا' if media else 'إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),
     ])
-    if len(button) <= 1:
+    if len(media) <= 1:
         rows.append([
             Button.inline('تعديل زر' if button else 'إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)
         ])
