@@ -17,24 +17,18 @@ def buttons(e):
     media = session.get('media')
     button = session.get('buttons') or []
     message_button = []
-    if len(button) == 1:
-        message_button.append([
-            Button.inline('تعديل زر' if button else 'إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)
-        ])
-    message_button.append([
+    if len(button) <= 1:
+        message_button.append(
+        Button.inline('تعديل زر' if button else 'إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue))
+    message_button.append(
         Button.inline('تعديل نص' if text else 'إضافة نص', data='set_text', icon=5280993797482750213, style=green if text else blue),
-        Button.inline('تعديل ميديا' if media else 'إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),
-    ])
+        Button.inline('تعديل ميديا' if media else 'إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),)
     del_button = [
-        [
-            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-            Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),
+        Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),
         ]
-    ]    
     done_button = [
-        [
-            Button.inline('تم', data='done', icon=5854724316385512963, style=green)
-        ]
+        Button.inline('تم', data='done', icon=5854724316385512963, style=green)
     ]
     return message_button + del_button + done_button
 @ABH.on(events.NewMessage(pattern=r'^/creat_message|انشاء رسالة$'))
