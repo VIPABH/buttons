@@ -69,8 +69,7 @@ async def _send(e):
                 e.chat_id,
                 file=processed_media[0],
                 caption=text,
-                buttons=buttons_to_send
-            )
+                buttons=buttons_to_send)
         else:
             await ABH.send_file(
                 e.chat_id,
@@ -96,11 +95,11 @@ async def small_filter(e):
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
-            # gid = getattr(msg, 'grouped_id', None)
-            # if msg.media and gid:
-            #     if gid in processed_groups:
-            #         return
-            #     processed_groups.add(gid)
+            gid = getattr(msg, 'grouped_id', None)
+            if msg.media and gid:
+                if gid in processed_groups:
+                    return
+                processed_groups.add(gid)
             message[e.sender_id]['media'].append(await extract_media_data(e))
             await _send(e)
             await e.reply('تم اضافة الميديا', buttons=buttons(e))
