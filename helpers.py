@@ -58,6 +58,23 @@ async def get_profile_photo(id, user=None):
             return None
     except:
             return None
+async def get_input_media(media_data):
+    if not media_data or not isinstance(media_data, dict):return None
+    m_id = int(media_data['id'])
+    m_hash = int(media_data['hash'])
+    m_ref = bytes.fromhex(media_data['ref'])
+    if media_data['type'] == "doc":
+        return types.InputDocument(id=m_id, access_hash=m_hash, file_reference=m_ref)
+    return types.InputPhoto(id=m_id, access_hash=m_hash, file_reference=m_ref)
+async def extract_media_data(e):
+    if not e.media: return None
+    if isinstance(e.media, types.MessageMediaDocument):
+        doc = e.media.document
+        return {"type": "doc", "id": doc.id, "hash": doc.access_hash, "ref": doc.file_reference.hex()}
+    elif isinstance(e.media, types.MessageMediaPhoto):
+        photo = e.media.photo
+        return {"type": "photo", "id": photo.id, "hash": photo.access_hash, "ref": photo.file_reference.hex()}
+    return None
 async def ment(entity):
   if hasattr(entity, "sender"):
     user = await entity.get_sender()
