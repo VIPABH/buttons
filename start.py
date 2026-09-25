@@ -20,9 +20,8 @@ def buttons(e):
     if len(button) == 1:
         message_button.append(Button.inline('تعيين زر' if not button else 'اضف زر' , data='set_buttons', icon=5280993797482750213, style= blue if not button else green),)
     message_button.append(
-        Button.inline('تعيين نص' if not text else 'اضف نص' , data='set_text', icon=5280993797482750213, style=blue if not text else green),
-        Button.inline('تعيين ميديا' if not media else 'اضف ميديا' , data='set_media', icon=5280993797482750213, style= blue if not media else green),
-    )
+        [Button.inline('تعيين نص' if not text else 'اضف نص' , data='set_text', icon=5280993797482750213, style=blue if not text else green),
+        Button.inline('تعيين ميديا' if not media else 'اضف ميديا' , data='set_media', icon=5280993797482750213, style= blue if not media else green),])
     del_button = [
         [Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
         Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
