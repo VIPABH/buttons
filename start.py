@@ -126,10 +126,13 @@ async def small_filter(e):
             await e.reply('تم اضافة الزر', buttons=buttons(e))
             del message[e.sender_id]['step']
         else:
+            await _send(e)
             message[e.sender_id]['temp_btn_name'] = text
             message[e.sender_id]['step'] = 'button_name'
             await e.reply('تم اضافة اسم الزر\n ارسل الرابط')
     elif step == 'button_name':
+        if not text.startswith(('http://', 'https://', 't.me', 'tg://')):
+            return await e.reply('الرابط غير صالح!')
         button_name = message[e.sender_id]['temp_btn_name']
         del message[e.sender_id]['temp_btn_name']
         message[e.sender_id]['buttons'].append((button_name, text))
