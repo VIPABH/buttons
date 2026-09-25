@@ -25,7 +25,7 @@ async def create_message(e):
         Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
         [Button.inline('تم', data='done', icon=5854724316385512963, style=green),]]
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=b)
-@ABH.on(events.CallbackQuery)
+@ABH.on(events.CallbackQuery(data='(set_|del)'))
 async def create_message_claaback(e):
     data = e.data.decode('utf-8')
     print(data)
@@ -43,8 +43,11 @@ async def _send(e):
     if not id in message:return
     b = [Button.inline(button[0], button[1]) for button in message[e.sender_id]['buttons']]
     if message[e.sender_id]['media']:
-        media_list = [await get_input_media(media) for media in message[e.sender_id]['media']]
-        await ABH.send_file(e.chat_id, file=media_list, caption=message[e.sender_id]['text'], buttons=b)
+        if len(message[e.sender_id]['media']) > 1:
+            media = [await get_input_media(m) for m in message[e.sender_id]['media']]
+        else:
+            media = await get_input_media(message[e.sender_id]['media'])
+        await ABH.send_file(e.chat_id, file=media, caption=message[e.sender_id]['text'], buttons=b)
     else:
         await ABH.send_message(e.chat_id, text=message[e.sender_id]['text'], buttons=b)
 processed_groups = set()
