@@ -10,7 +10,7 @@ async def is_user_check(e):
 async def start(e):
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر`')
 message = {}
-arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم:https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
+arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
     session = message.get(e.sender_id)
     text = session.get('text')
@@ -110,8 +110,8 @@ async def small_filter(e):
             await e.reply('عذرا عزيزي لازم ترسل ميديا مناسبة')
             del message[e.sender_id]['step']
     elif step == 'buttons':
-        if ':' in text:
-            name, url = text.split(':')
+        if '-' in text:
+            name, url = text.split('-')
             if not url.startswith(('http://', 'https://', 't.me', 'tg://')):
                 return await e.reply('الرابط غير صالح!')
             message[e.sender_id]['buttons'].append((name, url))
