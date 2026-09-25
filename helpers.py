@@ -27,7 +27,7 @@ async def is_user(e):
     key = f"users:{me.id}"
     if r.get(f"{me.id}:{uid}"):return True
     results = await asyncio.gather(
-        *(is_in_channel(uid, ch, BUTTON_BOT) for ch in channels))
+        *(is_in_channel(uid, ch) for ch in channels))
     buttons = [
         [Button.url(f"اشترك في {ch}", url=f"https://t.me/{ch}")]
         for ch, joined in zip(channels, results)
