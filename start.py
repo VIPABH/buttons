@@ -12,24 +12,31 @@ async def start(e):
 message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
-    session = message.get(e.sender_id)
+    session = message.get(e.sender_id) or {}
     text = session.get('text')
     media = session.get('media')
-    button = session.get('buttons')
+    button = session.get('buttons') or []
     message_button = []
     if len(button) == 1:
-        message_button.append(Button.inline('تعيين زر' if not button else 'اضف زر' , data='set_buttons', icon=5280993797482750213, style= blue if not button else green),)
-    message_button.append(
-        [Button.inline('تعيين نص' if not text else 'اضف نص' , data='set_text', icon=5280993797482750213, style=blue if not text else green),
-        Button.inline('تعيين ميديا' if not media else 'اضف ميديا' , data='set_media', icon=5280993797482750213, style= blue if not media else green),])
+        message_button.append([
+            Button.inline('تعديل زر' if button else 'إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)
+        ])
+    message_button.append([
+        Button.inline('تعديل نص' if text else 'إضافة نص', data='set_text', icon=5280993797482750213, style=green if text else blue),
+        Button.inline('تعديل ميديا' if media else 'إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),
+    ])
     del_button = [
-        [Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
+        [
+            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+            Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),
         ]
-    done_button =[
-        Button.inline('تم', data='done', icon=5854724316385512963, style=green)
+    ]    
+    done_button = [
+        [
+            Button.inline('تم', data='done', icon=5854724316385512963, style=green)
         ]
-    return [message_button, del_button, done_button]
+    ]
+    return message_button + del_button + done_button
 @ABH.on(events.NewMessage(pattern=r'^/creat_message|انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
