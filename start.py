@@ -30,7 +30,7 @@ def buttons(e):
     done_button = [
         Button.inline('تم', data='done', icon=5854724316385512963, style=green)
     ]
-    return [message_button + del_button + done_button]
+    return [[message_button] + [del_button] + [done_button]]
 @ABH.on(events.NewMessage(pattern=r'^/creat_message|انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
