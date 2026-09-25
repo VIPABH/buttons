@@ -32,7 +32,6 @@ async def create_message(e):
 @ABH.on(events.CallbackQuery(pattern='(set_|del)'))
 async def create_message_claaback(e):
     data = e.data.decode('utf-8')
-    print(data)
     if e.sender_id not in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
     if data == 'del_all':
@@ -75,10 +74,8 @@ async def _send(e):
                 e.chat_id,
                 file=processed_media,
                 caption=text,
-                buttons=None
+                buttons=buttons_to_send
             )
-            if buttons_to_send:
-                await ABH.send_message(e.chat_id, message="🔘 الأزرار المرفقة:", buttons=buttons_to_send)
     else:
         await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
 processed_groups = set()
