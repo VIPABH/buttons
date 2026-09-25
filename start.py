@@ -22,12 +22,13 @@ def buttons(e):
         [Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
         Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),],
         [Button.inline('تم', data='done', icon=5854724316385512963, style=green),]]
+    return b
 @ABH.on(events.NewMessage(pattern=r'^انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
     if id not in message:
         message[id] = {'text': '', 'media': [], 'buttons': []}
-    await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=b)
+    await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern='(set_|del)'))
 async def create_message_claaback(e):
     data = e.data.decode('utf-8')
@@ -95,7 +96,7 @@ async def small_filter(e):
     if text == 'انشاء رسالة':return
     if step == 'text':
         message[e.sender_id]['text'] += text
-        await e.reply('تم اضافة النص')
+        await e.reply('تم اضافة النص', buttons=buttons(e))
         await _send(e)
         del message[e.sender_id]['step']
     elif step == 'media':
@@ -106,7 +107,7 @@ async def small_filter(e):
             #         return
             #     processed_groups.add(gid)
             message[e.sender_id]['media'].append(await extract_media_data(e))
-            await e.reply('تم اضافة الميديا')
+            await e.reply('تم اضافة الميديا', buttons=buttons(e))
             await _send(e)
             del message[e.sender_id]['step']
         else:
@@ -116,7 +117,7 @@ async def small_filter(e):
     elif step == 'buttons':
         if ':' in text:
             message[e.sender_id]['buttons'].append(text.split(':'))
-            await e.reply('تم اضافة الزر')
+            await e.reply('تم اضافة الزر', buttons=buttons(e))
             await _send(e)
             del message[e.sender_id]['step']
         else:
@@ -127,7 +128,7 @@ async def small_filter(e):
         button_name = message[e.sender_id]['temp_btn_name']
         del message[e.sender_id]['temp_btn_name']
         message[e.sender_id]['buttons'].append((button_name, text))
-        await e.reply('تم اضافة الزر')
+        await e.reply('تم اضافة الزر', buttons=buttons(e))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
     await e.reply(
