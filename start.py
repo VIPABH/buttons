@@ -61,7 +61,6 @@ async def _send(e):
         name, url = item
         formatted_buttons.append(Button.url(name, url))
     buttons_to_send = formatted_buttons if formatted_buttons else None
-    print(buttons_to_send)
     if raw_media:
         processed_media = []
         for m in raw_media:
