@@ -83,7 +83,7 @@ async def small_filter(e):
     session = message.get(e.sender_id, None)
     if not session:return
     step = session.get('step')
-    text = e.text
+    text = e.text or ''
     if text == 'انشاء رسالة':return
     if step == 'text':
         message[e.sender_id]['text'] += text
@@ -93,6 +93,7 @@ async def small_filter(e):
     elif step == 'media':
         if e.media:
             message[e.sender_id]['media'].append(await extract_media_data(e))
+            message[e.sender_id]['text'] += text
             gid = getattr(e, 'grouped_id', None)
             if e.media and gid:
                 if gid in processed_groups:
@@ -103,7 +104,6 @@ async def small_filter(e):
             await e.reply('تم اضافة الميديا', buttons=buttons(e))
             del message[e.sender_id]['step']
         else:
-            await _send(e)
             await e.reply('عذرا عزيزي لازم ترسل ميديا مناسبة')
             del message[e.sender_id]['step']
     elif step == 'buttons':
