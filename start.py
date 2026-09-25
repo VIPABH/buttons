@@ -95,12 +95,12 @@ async def small_filter(e):
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
-            gid = getattr(msg, 'grouped_id', None)
-            if msg.media and gid:
+            message[e.sender_id]['media'].append(await extract_media_data(e))
+            gid = getattr(e, 'grouped_id', None)
+            if e.media and gid:
                 if gid in processed_groups:
                     return
                 processed_groups.add(gid)
-            message[e.sender_id]['media'].append(await extract_media_data(e))
             await _send(e)
             await e.reply('تم اضافة الميديا', buttons=buttons(e))
             del message[e.sender_id]['step']
