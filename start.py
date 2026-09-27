@@ -147,7 +147,7 @@ async def small_filter(e):
         if text == 'تخطي':
             message[e.sender_id]['icon'] = None
             return 
-        entities = e.message.entities or e.message.caption_entities
+        entities = e.message.entities
         if not entities:
             return await e.reply('ارسل ايموجي مميز او اكتب تخطي!')
         for entity in entities:
