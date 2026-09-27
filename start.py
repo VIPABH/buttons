@@ -241,7 +241,7 @@ text = "\n".join(f'{n}- `{command}`' for n, command in enumerate(commands, start
 async def command(e):
     await e.reply(f'''
     **اوامر البوت📖**
-    {text}
+{text}
     ''')
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
