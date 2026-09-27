@@ -69,6 +69,7 @@ async def _send(e):
     for item in raw_buttons:
         icon = None
         style = None
+        coloer = None
         if len(item) == 4:
             name, url, coloer, icon = item
         else:
