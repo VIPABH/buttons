@@ -1,3 +1,4 @@
+from telethon.tl.types import MessageEntityCustomEmoji
 from telethon import events
 from helpers import *
 from client import *
@@ -61,8 +62,8 @@ async def _send(e):
     raw_buttons = session.get('buttons') or []
     formatted_buttons = []
     for item in raw_buttons:
-        name, url = item
-        formatted_buttons.append(Button.url(name, url))
+        name, url, coloer, icon = item
+        formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
     buttons_to_send = formatted_buttons if formatted_buttons else None
     if raw_media:
         processed_media = []
@@ -126,18 +127,37 @@ async def small_filter(e):
             await e.reply('تم اضافة الزر', buttons=buttons(e))
             del message[e.sender_id]['step']
         else:
-            await _send(e)
             message[e.sender_id]['temp_btn_name'] = text
             message[e.sender_id]['step'] = 'button_name'
             await e.reply('تم اضافة اسم الزر\n ارسل الرابط')
     elif step == 'button_name':
         if not text.startswith(('http://', 'https://', 't.me', 'tg://')):
             return await e.reply('الرابط غير صالح!')
-        button_name = message[e.sender_id]['temp_btn_name']
-        del message[e.sender_id]['temp_btn_name']
-        message[e.sender_id]['buttons'].append((button_name, text))
+        message[e.sender_id]['button_name'] = text
+        message[e.sender_id]['step'] = 'coloer_button'
         await _send(e)
-        await e.reply('تم اضافة الزر', buttons=buttons(e))
+        await e.reply('تم اضافة الزر \n ارسل لون الزر', buttons=buttons(e))
+    elif step == 'coloer_button':
+        COLORS_NAME = {'ازرق': 'primary', 'احمر': 'danger', 'اخضر': 'success', 'شفاف': None}
+        if text not in COLORS_NAME.keys():
+            return await e.reply(f"عذرا صديقي لازم تختار لون مناسب\nالالوان المتاحة ( {' و '.join(COLORS_NAME.keys())} )")
+        message[e.sender_id]['coloer_button'] = text
+        message[e.sender_id]['step'] = 'icon'
+    elif step == 'icon':
+        if text == 'تخطي':
+            message[e.sender_id]['icon'] = None
+            return 
+        entities = e.message.entities or e.message.caption_entities
+        if not entities:
+            return await e.reply('ارسل ايموجي مميز او اكتب تخطي!')
+        for entity in entities:
+            if isinstance(entity, MessageEntityCustomEmoji):
+                message[e.sender_id]['icon'] = entity.document_id
+                break
+        button_name = message[e.sender_id]['button_name']
+        coloer_button = message[e.sender_id]['coloer_button']
+        icon = message[e.sender_id]['icon']
+        message[e.sender_id]['buttons'].append((button_name, coloer_button, icon))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
     await e.reply(
