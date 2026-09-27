@@ -57,9 +57,9 @@ async def _send(e):
     if user_id not in message:
         return
     session = message[user_id]
-    text = session.get('text') or "معاينة الرسالة:"
-    raw_media = session.get('media') or []
-    raw_buttons = session.get('buttons') or []
+    text = session.get('text', "معاينة الرسالة:")
+    raw_media = session.get('media', [])
+    raw_buttons = session.get('buttons', [])
     formatted_buttons = []
     for item in raw_buttons:
         name, url, coloer, icon = item
@@ -148,9 +148,14 @@ async def small_filter(e):
         await e.reply('تم اضافة لون الزر \n ارسل ايقونه الزر')
     elif step == 'icon':
         if text == 'تخطي':
-            message[e.sender_id]['icon'] = None
             await _send(e)
-            await e.reply('تم تخطي الايقونه')
+            await e.reply('تم تخطي الايقونه', buttons=buttons(e))
+            temp_btn_name = message[e.sender_id]['temp_btn_name']
+            button_name = message[e.sender_id]['url']
+            coloer_button = message[e.sender_id]['coloer_button']
+            message[e.sender_id]['icon'] = None
+            del message[e.sender_id]['step']
+            message[e.sender_id]['buttons'].append((temp_btn_name, button_name, coloer_button, message[e.sender_id]['icon']))
             return 
         entities = e.message.entities
         if not entities:
@@ -166,6 +171,7 @@ async def small_filter(e):
         message[e.sender_id]['buttons'].append((temp_btn_name, button_name, coloer_button, icon))
         await _send(e)
         await e.reply('تم اضافة الزر', buttons=buttons(e))
+        del message[e.sender_id]['step']
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
     await e.reply(
