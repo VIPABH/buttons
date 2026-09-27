@@ -68,30 +68,33 @@ async def _send(e):
         else:
             formatted_buttons.append(Button.url(name, url, style=coloer))
     buttons_to_send = formatted_buttons if formatted_buttons else None
-    if raw_media:
-        processed_media = []
-        for m in raw_media:
-            item = await get_input_media(m) if callable(get_input_media) else m
-            if item is not None:
-                processed_media.append(item)
-        if not processed_media:
-            await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
-            return
-        if len(processed_media) == 1:
-            await ABH.send_file(
-                e.chat_id,
-                file=processed_media[0],
-                caption=text,
-                buttons=buttons_to_send)
+    try:
+        if raw_media:
+            processed_media = []
+            for m in raw_media:
+                item = await get_input_media(m) if callable(get_input_media) else m
+                if item is not None:
+                    processed_media.append(item)
+            if not processed_media:
+                await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
+                return
+            if len(processed_media) == 1:
+                await ABH.send_file(
+                    e.chat_id,
+                    file=processed_media[0],
+                    caption=text,
+                    buttons=buttons_to_send)
+            else:
+                await ABH.send_file(
+                    e.chat_id,
+                    file=processed_media,
+                    caption=text,
+                    buttons=buttons_to_send
+                )
         else:
-            await ABH.send_file(
-                e.chat_id,
-                file=processed_media,
-                caption=text,
-                buttons=buttons_to_send
-            )
-    else:
-        await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
+            await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
+    except Exception as error:
+        await hint(f'error in **_send** session ( {session} ) error ( {error} )')
 processed_groups = set()
 async def small_filter(e):
     session = message.get(e.sender_id, None)
