@@ -8,13 +8,17 @@ from telethon import events
 from helpers import *
 from client import *
 import re, asyncio
+data = create('info.json')
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
-    await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر`')
+    button = [Button.inline('اضف قناة', data='add_channel', style='success', icon=5280993797482750213),]
+    if e.sender_id in data:
+        button.append([Button.inline('حذف قناة', data='del_channel', style='danger', icon=5258130763148172425), Button.inline('القنوات', data='channeles', style=blue, icon=5188311512791393083)])
+    await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
 message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
@@ -43,26 +47,41 @@ def buttons(e):
 async def create_message(e):
     id = e.sender_id
     if id not in message:
-        message[id] = {'text': '', 'media': [], 'buttons': []}
+        message[id] = {'text': [], 'media': [], 'buttons': []}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern='(set_|del)'))
 async def create_message_claaback(e):
     data = e.data.decode('utf-8')
-    if e.sender_id not in message:
+    session = message.get(e.sender_id, None)
+    if session:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
     if data == 'del_all':
         del message[e.sender_id]
         return await e.edit('تم حذف الجلسة')
-    elif data.startswith('set_'):
+    if data == 'delete':
+        text = session.get('text')
+        media = session.get('media')
+        buttons = session.get('buttons')
+        if not text and not media and not button:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
+        button = []
+        if text:
+            button.append(Button.inline('تعديل النص', data='edit_text', style=red, icon=5229113891081956317))
+        if media:
+            button.append(Button.inline('تعديل الميديا', data='edit_media', style=red, icon=5229113891081956317))
+        if button:
+            button.append(Button.inline('تعديل الازرار', data='edit_buttons', style=red, icon=5229113891081956317))
+        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(buttons)}` )')
+    if data.startswith('set_'):
         data = data.replace('set_', '')
         message[e.sender_id]['step'] = data
-        await e.edit(arg[data])
+        return await e.edit(arg[data])
 async def _send(e):
     user_id = e.sender_id    
     if user_id not in message:
         return
     session = message[user_id]
-    text = session.get('text', "معاينة الرسالة:")
+    row_text = session.get('text', ["معاينة الرسالة:"])
+    text = ' \n '.join(row_text)
     raw_media = session.get('media', [])
     raw_buttons = session.get('buttons', [])
     formatted_buttons = []
@@ -151,7 +170,7 @@ async def small_filter(e):
         if e.media:
             
             message[e.sender_id]['media'].append(await extract_media_data(e))
-            message[e.sender_id]['text'] += text
+            message[e.sender_id]['text'].append(text)
             gid = getattr(e, 'grouped_id', None)
             if e.media and gid:
                 if gid in processed_groups:
@@ -216,19 +235,14 @@ async def small_filter(e):
         await _send(e)
         await e.reply('تم اضافة الزر', buttons=buttons(e))
         del message[e.sender_id]['step']
+commands = ['اضافة قناة', 'حذف قناة', 'انشاء رسالة', 'نشر رسالة', 'زر']
+text = "\n".join(f'{n}- `{command}`' for n, command in enumerate(commands, start=1))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
-    await e.reply(
-        f"<b>📋 الأوامر المتاحة كالأتي:</b>\n\n"
-        f"تكتب كلمة <code>زر</code> وبعدها رابط الزر، مثال:\n"
-        f"<code>زر https://t.me/K_4x1</code>\n\n"
-        f"يمكنك أيضاً إضافة لون للزر، مثال:\n"
-        f"<code>زر https://t.me/K_4x1 ازرق</code>\n\n"
-        f"ويمكنك إضافة إيموجي مميز للزر، مثال:\n"
-        f"<code>زر https://t.me/K_4x1</code>{custom_emoji(5465374681915727405)}",
-        
-        parse_mode='html'
-    )
+    await e.reply(f'''
+    **اوامر البوت📖**
+    {text}
+    ''')
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
           "اخضر": "success", "green": "success"}
