@@ -135,7 +135,6 @@ async def small_filter(e):
             return await e.reply('الرابط غير صالح!')
         message[e.sender_id]['url'] = text
         message[e.sender_id]['step'] = 'coloer_button'
-        await _send(e)
         await e.reply('تم اضافة الزر \n ارسل لون الزر')
     elif step == 'coloer_button':
         COLORS_NAME = {'ازرق': 'primary', 'احمر': 'danger', 'اخضر': 'success', 'شفاف': None}
@@ -157,11 +156,11 @@ async def small_filter(e):
             if isinstance(entity, MessageEntityCustomEmoji):
                 message[e.sender_id]['icon'] = entity.document_id
                 break
-        button_name = message[e.sender_id]['temp_btn_name']
+        temp_btn_name = message[e.sender_id]['temp_btn_name']
         button_name = message[e.sender_id]['url']
         coloer_button = message[e.sender_id]['coloer_button']
         icon = message[e.sender_id]['icon']
-        message[e.sender_id]['buttons'].append((button_name, coloer_button, icon))
+        message[e.sender_id]['buttons'].append((temp_btn_name, button_name, coloer_button, icon))
         await _send(e)
         await e.reply('تم اضافة الزر')
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
