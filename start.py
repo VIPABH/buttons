@@ -135,12 +135,12 @@ async def small_filter(e):
             return await e.reply('الرابط غير صالح!')
         message[e.sender_id]['url'] = text
         message[e.sender_id]['step'] = 'coloer_button'
-        await e.reply('تم اضافة الزر \n ارسل لون الزر')
+        await e.reply('تم اضافة الرابط \n ارسل لون الزر')
     elif step == 'coloer_button':
         COLORS_NAME = {'ازرق': 'primary', 'احمر': 'danger', 'اخضر': 'success', 'شفاف': None}
         if text not in COLORS_NAME.keys():
             return await e.reply(f"عذرا صديقي لازم تختار لون مناسب\nالالوان المتاحة ( {' و '.join(COLORS_NAME.keys())} )")
-        message[e.sender_id]['coloer_button'] = text
+        message[e.sender_id]['coloer_button'] = COLORS_NAME[text]
         message[e.sender_id]['step'] = 'icon'
         await e.reply('تم اضافة لون الزر \n ارسل ايقونه الزر')
     elif step == 'icon':
@@ -149,7 +149,7 @@ async def small_filter(e):
             await _send(e)
             await e.reply('تم تخطي الايقونه')
             return 
-        entities = e.message.entities or e.message.caption_entities
+        entities = e.message.entities
         if not entities:
             return await e.reply('ارسل ايموجي مميز او اكتب تخطي!')
         for entity in entities:
