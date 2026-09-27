@@ -1,3 +1,8 @@
+from telethon.tl.types import (
+    MessageExtendedMediaPreview, DocumentAttributeAudio, DocumentAttributeSticker,
+    Message, MessageMediaPhoto, MessageMediaDocument, MessageMediaGeo,
+    DocumentAttributeVideo, DocumentAttributeAnimated,
+    MessageMediaPoll, MessageExtendedMedia,)
 from telethon.tl.types import MessageEntityCustomEmoji
 from telethon import events
 from helpers import *
@@ -62,7 +67,12 @@ async def _send(e):
     raw_buttons = session.get('buttons', [])
     formatted_buttons = []
     for item in raw_buttons:
-        name, url, coloer, icon = item
+        icon = None
+        style = None
+        if len(item) == 4:
+            name, url, coloer, icon = item
+        else:
+            name, url = item
         if icon:
             formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
         else:
@@ -94,8 +104,37 @@ async def _send(e):
         else:
             await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
     except Exception as error:
-        await hint(f'error in **_send** session ( {session} ) error ( {error} )')
+        await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 processed_groups = set()
+def get_message_type(msg: Message) -> str:
+    if msg is None:
+        return
+    if msg and not msg.media:
+        return "الرسائل"
+    if isinstance(msg.media, MessageExtendedMediaPreview) or isinstance(msg.media, MessageExtendedMedia):
+        inner = msg.media.media
+        return get_message_type(Message(id=msg.id, media=inner))
+    if isinstance(msg.media, MessageMediaPhoto):
+        return "الصور"
+    if isinstance(msg.media, MessageMediaDocument):
+        for attr in msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeAnimated):
+                return "المتحركات"
+        for attr in msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeVideo):
+                if getattr(attr, "round_message", False):
+                    return "الفويس نوت"
+                return "الفيديوهات"
+        mime = msg.media.document.mime_type or ""
+        if mime.startswith("image/"):
+            return "الصور"
+        elif mime.startswith("video/"):
+            return "الفيديوهات"
+def is_alivable(msg):
+    if isinstance(msg.media, MessageMediaDocument):
+        for attr in msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeAnimated):
+                return 
 async def small_filter(e):
     session = message.get(e.sender_id, None)
     if not session:return
@@ -109,6 +148,7 @@ async def small_filter(e):
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
+            
             message[e.sender_id]['media'].append(await extract_media_data(e))
             message[e.sender_id]['text'] += text
             gid = getattr(e, 'grouped_id', None)
