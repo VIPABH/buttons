@@ -63,7 +63,10 @@ async def _send(e):
     formatted_buttons = []
     for item in raw_buttons:
         name, url, coloer, icon = item
-        formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
+        if icon:
+            formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
+        else:
+            formatted_buttons.append(Button.url(name, url, style=coloer))
     buttons_to_send = formatted_buttons if formatted_buttons else None
     if raw_media:
         processed_media = []
@@ -162,7 +165,7 @@ async def small_filter(e):
         icon = message[e.sender_id]['icon']
         message[e.sender_id]['buttons'].append((temp_btn_name, button_name, coloer_button, icon))
         await _send(e)
-        await e.reply('تم اضافة الزر')
+        await e.reply('تم اضافة الزر', buttons=buttons(e))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
     await e.reply(
