@@ -70,7 +70,7 @@ async def create_message_claaback(e):
             button.append(Button.inline('تعديل الميديا', data='edit_media', style=red, icon=5229113891081956317))
         if button:
             button.append(Button.inline('تعديل الازرار', data='edit_buttons', style=red, icon=5229113891081956317))
-        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(buttons)}` )')
+        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(buttons)}` )', buttons=button)
     if data.startswith('set_'):
         data = data.replace('set_', '')
         message[e.sender_id]['step'] = data
@@ -81,6 +81,7 @@ async def _send(e):
         return
     session = message[user_id]
     row_text = session.get('text') or ["معاينة الرسالة:"]
+    print(row_text)
     text = ' \n '.join(row_text)
     raw_media = session.get('media', [])
     raw_buttons = session.get('buttons', [])
