@@ -9,6 +9,7 @@ from helpers import *
 from client import *
 import re, asyncio
 data = create('info.json')
+not_allowed = ['الفويسات', 'الستيكرات', 'الفويس نوت', 'المتحركات']
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
@@ -46,7 +47,7 @@ async def create_message(e):
         message[id] = {'text': [], 'media': [], 'buttons': [], "types": set()}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern='(set_|del)'))
-async def create_message_claaback(e):
+async def create_message_callback(e):
     data = e.data.decode('utf-8')
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
@@ -121,6 +122,7 @@ async def _send(e):
             await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
+allowed = ['الصور', 'الفيديوهات']
 async def small_filter(e):
     session = message.get(e.sender_id) or {}
     if not session:return
@@ -134,7 +136,17 @@ async def small_filter(e):
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
+            Type = get_meesage_type(e.message) or 'النوع غير معروف'
+            old_type = session.get('type')
+            if old_type:
+                if Type != old_type and Type not in allowed and old_type not in allowed:
+                    del message[e.sender_id]['step']
+                    return await e.reply(f'عذرا بس ماكدر ارسل نوعين مختلفات')
+            if Type in not_allowed:
+                del message[e.sender_id]['step']            
+                return await e.reply(f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة')
             message[e.sender_id]['media'].append(await extract_media_data(e))
+            message[e.sender_id]['type'] = Type
             if text:
                 message[e.sender_id]['text'].append(text)
             gid = getattr(e, 'grouped_id', None)
@@ -334,7 +346,7 @@ def get_message_type(msg: Message) -> str:
         inner = msg.media.media
         return get_message_type(Message(id=msg.id, media=inner))
     if isinstance(msg.media, MessageMediaPhoto):
-        return "الصور"
+        return "الصور" 
     if isinstance(msg.media, MessageMediaDocument):
         for attr in msg.media.document.attributes:
             if isinstance(attr, DocumentAttributeAnimated):
@@ -343,16 +355,16 @@ def get_message_type(msg: Message) -> str:
             if isinstance(attr, DocumentAttributeVideo):
                 if getattr(attr, "round_message", False):
                     return "الفويس نوت"
-                return "الفيديوهات"
+                return "الفيديوهات"  
         for attr in msg.media.document.attributes:
             if isinstance(attr, DocumentAttributeSticker):
-                return "الستيكرات"
+                return "الستيكرات" 
             if isinstance(attr, DocumentAttributeAudio):
                 return "الفويسات" if getattr(attr, "voice", False) else "الصوتيات"
         mime = msg.media.document.mime_type or ""
         if mime.startswith("image/"):
-            return "الصور"
+            return "الصور" 
         elif mime.startswith("video/"):
-            return "الفيديوهات"
+            return "الفيديوهات"  
         elif mime.startswith("audio/"):
-            return "الصوتيات"
+            return "الصوتيات" 
