@@ -80,8 +80,8 @@ async def _send(e):
     if user_id not in message:
         return
     session = message[user_id]
+    print(session.get('text'))
     row_text = session.get('text') or ["معاينة الرسالة:"]
-    print(row_text)
     text = ' \n '.join(row_text)
     raw_media = session.get('media', [])
     raw_buttons = session.get('buttons', [])
