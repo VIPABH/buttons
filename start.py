@@ -127,6 +127,7 @@ async def small_filter(e):
     session = message.get(e.sender_id) or {}
     if not session:return
     step = session.get('step')
+    if not step:return
     text = e.text.strip() or None
     if text == 'انشاء رسالة':return
     if step == 'text':
