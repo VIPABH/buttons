@@ -52,9 +52,9 @@ async def create_message(e):
 @ABH.on(events.CallbackQuery(pattern='(set_|del)'))
 async def create_message_claaback(e):
     data = e.data.decode('utf-8')
-    session = message.get(e.sender_id, None)
-    if session:
+    if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
+    session = message.get(e.sender_id, None)
     if data == 'del_all':
         del message[e.sender_id]
         return await e.edit('تم حذف الجلسة')
@@ -125,36 +125,6 @@ async def _send(e):
             await ABH.send_message(e.chat_id, message=text, buttons=buttons_to_send)
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
-processed_groups = set()
-def get_message_type(msg: Message) -> str:
-    if msg is None:
-        return
-    if msg and not msg.media:
-        return "الرسائل"
-    if isinstance(msg.media, MessageExtendedMediaPreview) or isinstance(msg.media, MessageExtendedMedia):
-        inner = msg.media.media
-        return get_message_type(Message(id=msg.id, media=inner))
-    if isinstance(msg.media, MessageMediaPhoto):
-        return "الصور"
-    if isinstance(msg.media, MessageMediaDocument):
-        for attr in msg.media.document.attributes:
-            if isinstance(attr, DocumentAttributeAnimated):
-                return "المتحركات"
-        for attr in msg.media.document.attributes:
-            if isinstance(attr, DocumentAttributeVideo):
-                if getattr(attr, "round_message", False):
-                    return "الفويس نوت"
-                return "الفيديوهات"
-        mime = msg.media.document.mime_type or ""
-        if mime.startswith("image/"):
-            return "الصور"
-        elif mime.startswith("video/"):
-            return "الفيديوهات"
-def is_alivable(msg):
-    if isinstance(msg.media, MessageMediaDocument):
-        for attr in msg.media.document.attributes:
-            if isinstance(attr, DocumentAttributeAnimated):
-                return 
 async def small_filter(e):
     session = message.get(e.sender_id, None)
     if not session:return
