@@ -80,7 +80,6 @@ async def _send(e):
     if user_id not in message:
         return
     session = message[user_id]
-    print(session.get('text'))
     row_text = session.get('text') or ["معاينة الرسالة:"]
     text = ' \n '.join(row_text)
     raw_media = session.get('media', [])
@@ -133,7 +132,7 @@ async def small_filter(e):
     text = e.text or ''
     if text == 'انشاء رسالة':return
     if step == 'text':
-        message[e.sender_id]['text'] += text
+        message[e.sender_id]['text'].append(text)
         await _send(e)
         await e.reply('تم اضافة النص', buttons=buttons(e))
         del message[e.sender_id]['step']
