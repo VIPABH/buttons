@@ -23,31 +23,27 @@ message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
     session = message.get(e.sender_id) or {}
-    text = session.get('text')
-    media = session.get('media')
+    text = session.get('text') or []
+    media = session.get('media') or []
     button = session.get('buttons') or []
     rows = []
     rows.append([
-        Button.inline('تعديل نص' if text else 'إضافة نص', data='set_text', icon=5280993797482750213, style=green if text else blue),
-        Button.inline('تعديل ميديا' if media else 'إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),
-    ])
+        Button.inline('إضافة نص', data='set_text', icon=5280993797482750213, style=green if not text else blue),
+        Button.inline('إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if not media else blue),])
     if len(media) <= 1:
         rows.append([
-            Button.inline('تعديل زر' if button else 'إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)
-        ])
+            Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if not button else blue)])
     rows.append([
         Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),
-    ])
+        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),])
     rows.append([
-        Button.inline('تم', data='done', icon=5854724316385512963, style=green)
-    ])
+        Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
 @ABH.on(events.NewMessage(pattern=r'^/creat_message|انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
     if id not in message:
-        message[id] = {'text': [], 'media': [], 'buttons': []}
+        message[id] = {'text': [], 'media': [], 'buttons': [], "types": set()}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern='(set_|del)'))
 async def create_message_claaback(e):
@@ -126,10 +122,10 @@ async def _send(e):
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 async def small_filter(e):
-    session = message.get(e.sender_id, None)
+    session = message.get(e.sender_id) or {}
     if not session:return
     step = session.get('step')
-    text = e.text or ''
+    text = e.text.strip() or None
     if text == 'انشاء رسالة':return
     if step == 'text':
         message[e.sender_id]['text'].append(text)
@@ -138,9 +134,9 @@ async def small_filter(e):
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
-            
             message[e.sender_id]['media'].append(await extract_media_data(e))
-            message[e.sender_id]['text'].append(text)
+            if text:
+                message[e.sender_id]['text'].append(text)
             gid = getattr(e, 'grouped_id', None)
             if e.media and gid:
                 if gid in processed_groups:
@@ -331,3 +327,32 @@ async def handler(event):
             await ABH.send_message(event.chat_id, f"تم إنشاء الأزرار بنجاح.{warning}")
     except Exception:
         return await event.reply("حدث خطأ أثناء إنشاء الرسالة والأزرار.")
+def get_message_type(msg: Message) -> str:
+    if msg is None:
+        return
+    if isinstance(msg.media, MessageExtendedMediaPreview) or isinstance(msg.media, MessageExtendedMedia):
+        inner = msg.media.media
+        return get_message_type(Message(id=msg.id, media=inner))
+    if isinstance(msg.media, MessageMediaPhoto):
+        return "الصور"
+    if isinstance(msg.media, MessageMediaDocument):
+        for attr in msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeAnimated):
+                return "المتحركات"
+        for attr in msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeVideo):
+                if getattr(attr, "round_message", False):
+                    return "الفويس نوت"
+                return "الفيديوهات"
+        for attr in msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeSticker):
+                return "الستيكرات"
+            if isinstance(attr, DocumentAttributeAudio):
+                return "الفويسات" if getattr(attr, "voice", False) else "الصوتيات"
+        mime = msg.media.document.mime_type or ""
+        if mime.startswith("image/"):
+            return "الصور"
+        elif mime.startswith("video/"):
+            return "الفيديوهات"
+        elif mime.startswith("audio/"):
+            return "الصوتيات"
