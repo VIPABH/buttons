@@ -46,7 +46,7 @@ async def create_message(e):
     if id not in message:
         message[id] = {'text': [], 'media': [], 'buttons': [], "types": set()}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
-@ABH.on(events.CallbackQuery(pattern='(set_|del)'))
+@ABH.on(events.CallbackQuery(pattern='(set_|del|edit_)'))
 async def create_message_callback(e):
     data = e.data.decode('utf-8')
     if not e.sender_id in message:
@@ -72,6 +72,9 @@ async def create_message_callback(e):
         data = data.replace('set_', '')
         message[e.sender_id]['step'] = data
         return await e.edit(arg[data])
+    if data.startswith('edit_'):
+        data = data.replace('edit_', '')
+        # if data == 
 async def _send(e):
     user_id = e.sender_id    
     if user_id not in message:
@@ -137,13 +140,13 @@ async def small_filter(e):
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
-            Type = get_message_type(e.message) or 'النوع غير معروف'
+            Type = get_meesage_type(e.message) or 'النوع غير معروف'
             old_type = session.get('type')
             if old_type:
                 if Type != old_type and Type not in allowed and old_type not in allowed:
                     del message[e.sender_id]['step']
                     return await e.reply(f'عذرا بس ماكدر ارسل نوعين مختلفات')
-            if Type in not_allowed:
+            if len(message[e.sender_id]['media']) > 1 and Type in not_allowed:
                 del message[e.sender_id]['step']            
                 return await e.reply(f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة')
             message[e.sender_id]['media'].append(await extract_media_data(e))
