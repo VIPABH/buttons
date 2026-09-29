@@ -31,6 +31,8 @@ def buttons(e):
     rows.append([
         Button.inline('إضافة نص', data='set_text', icon=5280993797482750213, style=green if not text else blue),
         Button.inline('إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if not media else blue),])
+    if session.get('type') in not_allowed:
+        del button[1]
     if len(media) <= 1:
         rows.append([
             Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if not button else blue)])
@@ -147,7 +149,7 @@ async def small_filter(e):
                     del message[e.sender_id]['step']
                     return await e.reply(f'عذرا بس ماكدر ارسل نوعين مختلفات')
             if len(message[e.sender_id]['media']) > 1 and Type in not_allowed:
-                del message[e.sender_id]['step']            
+                del message[e.sender_id]['step']
                 return await e.reply(f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة')
             message[e.sender_id]['media'].append(await extract_media_data(e))
             message[e.sender_id]['type'] = Type
