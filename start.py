@@ -140,7 +140,7 @@ async def small_filter(e):
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
-            Type = get_meesage_type(e.message) or 'النوع غير معروف'
+            Type = get_message_type(e.message) or 'النوع غير معروف'
             old_type = session.get('type')
             if old_type:
                 if Type != old_type and Type not in allowed and old_type not in allowed:
