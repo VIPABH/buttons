@@ -28,9 +28,13 @@ def buttons(e):
     media = session.get('media') or []
     button = session.get('buttons') or []
     rows = []
-    if session.get('type') in not_allowed:
-        rows.append([
-            Button.inline('إضافة نص', data='set_text', icon=5280993797482750213, style=green if not text else blue),])
+    Type = session.get('type')
+    if Type in not_allowed:
+        if Type == 'الستيكرات':
+            pass
+        else:
+            rows.append([
+                Button.inline('إضافة نص', data='set_text', icon=5280993797482750213, style=green if not text else blue),])
     else:
         rows.append([
             Button.inline('إضافة نص', data='set_text', icon=5280993797482750213, style=green if not text else blue),
