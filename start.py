@@ -10,6 +10,12 @@ from client import *
 import re, asyncio
 data = create('info.json')
 not_allowed = ['الفويسات', 'الستيكرات', 'الفويس نوت', 'المتحركات']
+help_msg = f'''
+اهلا عزيزي انت ب قسم المساعدة 
+**لمحة عن البوت**
+البوت هوه عبارة عن انشاء رسالة عبر الازرار
+
+'''
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
@@ -67,6 +73,7 @@ async def create_message_callback(e):
         text = session.get('text')
         media = session.get('media')
         buttons = session.get('buttons')
+        await hint(buttons)
         if not text and not media and not button:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
         button = []
         if text:
@@ -82,11 +89,51 @@ async def create_message_callback(e):
         return await e.edit(arg[data])
     if data.startswith('edit_'):
         data = data.replace('edit_', '')
-        # if data == 
+async def callback_handler(e, data):
+    session = message.get(e.sender_id)
+    row_text = session.get('text')
+    formated_text = [f'{n}- `{text}`' for n, text in enumerate(row_text, start=1)]
+    media = session.get('media')
+    button = session.get('button')
+    if data == 'text':
+        caption == f'''
+اختر من النصوص الاتية
+{'\n'.join(formated_text)}
+يرجى اختيار رقم النص لتعديله
+        '''
+        await e.edit(caption)
+    elif data == 'media':
+        await e.edit('اضغط على ازرار الفيديو للتخصيص')
+        for num, item in enumerate(media, start=0):
+            b = [
+                Button.inline('تغيير الفيديو', data=f'video_change:{num}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف الفيديو', data=f'video_delete:{num}', style=blue, icon=5465665476971471368)]
+            m = await get_input_media(item)
+            await ABH.send_file(e.chat_id, file=m, buttons=b)
+    elif data == 'buttons':
+        await e.edit('اضغط على الازرار للتخصيص')
+        for num, item in enumerate(button, start=0):
+            formatted_buttons = []
+            icon = None
+            style = None
+            coloer = None
+            if len(item) == 4:
+                name, url, coloer, icon = item
+            else:
+                name, url = item
+            if icon:
+                formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
+            else:
+                formatted_buttons.append(Button.url(name, url, style=coloer))
+            buttons_to_send = formatted_buttons if formatted_buttons else None
+            b = [
+                Button.inline('تعديل الزر', data=f'button_edit:{num}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف الزر', data=f'button_delete:{num}', style=blue, icon=5465665476971471368)]
+            buttons_to_send.append(b)
+            await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
 async def _send(e):
     user_id = e.sender_id    
-    if user_id not in message:
-        return
+    if user_id not in message:return
     session = message[user_id]
     row_text = session.get('text') or ["معاينة الرسالة:"]
     text = ' \n '.join(row_text)
