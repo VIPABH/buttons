@@ -92,7 +92,7 @@ def profile(user_id):
     data = r.get(f"user:{user_id}")
     return json.loads(data) if data else None
 async def hint(text):
-    await ABH.send_message(wfffp, text)
+    await ABH.send_message(wfffp, str(text))
 red = "danger"
 green = "success"
 blue = "primary"
