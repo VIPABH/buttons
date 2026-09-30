@@ -91,11 +91,9 @@ async def create_message_callback(e):
         await callback_handler(e, data)
 async def callback_handler(e, data):
     session = message.get(e.sender_id)
-    row_text = session.get('text')
-    formated_text = [f'{n}- `{text}`' for n, text in enumerate(row_text, start=1)]
-    media = session.get('media')
-    button = session.get('button')
     if data == 'text':
+        row_text = session.get('text')
+        formated_text = [f'{n}- `{text}`' for n, text in enumerate(row_text, start=1)]
         caption == f'''
 اختر من النصوص الاتية
 {'\n'.join(formated_text)}
@@ -103,6 +101,7 @@ async def callback_handler(e, data):
         '''
         await e.edit(caption)
     elif data == 'media':
+        media = session.get('media')
         await e.edit('اضغط على ازرار الفيديو للتخصيص')
         for num, item in enumerate(media, start=0):
             b = [
@@ -112,6 +111,7 @@ async def callback_handler(e, data):
             await ABH.send_file(e.chat_id, file=m, buttons=b)
     elif data == 'buttons':
         await e.edit('اضغط على الازرار للتخصيص')
+        button = session.get('buttons')
         for num, item in enumerate(button, start=0):
             formatted_buttons = []
             icon = None
