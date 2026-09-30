@@ -73,14 +73,13 @@ async def create_message_callback(e):
         text = session.get('text')
         media = session.get('media')
         buttons = session.get('buttons')
-        await hint(buttons)
         if not text and not media and not button:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
         button = []
         if text:
             button.append(Button.inline('تعديل النص', data='edit_text', style=red, icon=5229113891081956317))
         if media:
             button.append(Button.inline('تعديل الميديا', data='edit_media', style=red, icon=5229113891081956317))
-        if button:
+        if buttons:
             button.append(Button.inline('تعديل الازرار', data='edit_buttons', style=red, icon=5229113891081956317))
         return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(buttons)}` )', buttons=button)
     if data.startswith('set_'):
@@ -89,6 +88,7 @@ async def create_message_callback(e):
         return await e.edit(arg[data])
     if data.startswith('edit_'):
         data = data.replace('edit_', '')
+        await callback_handler(e, data)
 async def callback_handler(e, data):
     session = message.get(e.sender_id)
     row_text = session.get('text')
