@@ -73,7 +73,7 @@ async def create_message_callback(e):
         text = session.get('text')
         media = session.get('media')
         buttons = session.get('buttons')
-        if not text and not media and not button:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
+        if not text and not media and not buttons:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
         button = []
         if text:
             button.append(Button.inline('تعديل النص', data='edit_text', style=red, icon=5229113891081956317))
