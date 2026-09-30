@@ -122,9 +122,9 @@ async def callback_handler(e, data):
             else:
                 name, url = item
             if icon:
-                formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
+                formatted_buttons.append([Button.url(name, url, style=coloer, icon=icon)])
             else:
-                formatted_buttons.append(Button.url(name, url, style=coloer))
+                formatted_buttons.append([Button.url(name, url, style=coloer)])
             buttons_to_send = formatted_buttons if formatted_buttons else None
             b = [
                 Button.inline('تعديل الزر', data=f'button_edit:{num}', style=blue, icon=5264727218734524899),
