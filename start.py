@@ -363,10 +363,10 @@ async def small_filter(e):
         if photo_file:
             return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", file=photo_file, buttons=buttons)
         return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", buttons=buttons)
-@ABH.on(events.CallbackQuery(pattern=b'^(yes|no):$'))
-async def Accept_channle(e):
-    data = e.data.decode('utf-8')
-    arg, chat = data.split(':')
+@ABH.on(events.CallbackQuery(pattern=r'^(yes|no):(-?\d+)$'))
+async def handle_yes_no(e):
+    arg = e.pattern_match.group(1)    
+    chat = int(e.pattern_match.group(2))
     id = e.sender_id
     if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
     if arg == 'yes':
