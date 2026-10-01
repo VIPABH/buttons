@@ -105,8 +105,8 @@ async def callback_handler(e, data):
         await e.edit('اضغط على ازرار الفيديو للتخصيص')
         for num, item in enumerate(media, start=0):
             b = [
-                Button.inline('تغيير الفيديو', data=f'media_change_{num}', style=blue, icon=5264727218734524899),
-                Button.inline('حذف الفيديو', data=f'media_delete_{num}', style=blue, icon=5465665476971471368)]
+                Button.inline('تغيير الفيديو', data=f'media_change:{num}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف الفيديو', data=f'media_delete:{num}', style=blue, icon=5465665476971471368)]
             m = await get_input_media(item)
             await ABH.send_file(e.chat_id, file=m, buttons=b)
     elif data == 'buttons':
@@ -136,14 +136,14 @@ translate = {"media": 'الميديا', 'buttons': 'الزر'}
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
-    action_type, action_type, num = e.data.decode('utf-8').split('_')
+    action_type, action_type, num = re.split(r'[_:]', e.data.decode('utf-8'))
     print(action_name)
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_type
-        del message[e.sender_id][action_type][num]
+        del message[e.sender_id][action_type][int(num)]
         await e.edit(f'ارسل الان {translate[action_type]}')
     else:
-        del message[e.sender_id]['buttons'][num]
+        del message[e.sender_id]['buttons'][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}')
 async def _send(e):
     user_id = e.sender_id    
