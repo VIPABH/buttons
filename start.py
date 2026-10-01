@@ -4,18 +4,22 @@ from telethon.tl.types import (
     DocumentAttributeVideo, DocumentAttributeAnimated,
     MessageMediaPoll, MessageExtendedMedia,)
 from telethon.tl.types import MessageEntityCustomEmoji
+from datetime import datetime
+import re, asyncio, os, json
 from telethon import events
+from io import BytesIO
 from helpers import *
 from client import *
-import re, asyncio
 info = create('info.json')
 not_allowed = ['الفويسات', 'الستيكرات', 'الفويس نوت', 'المتحركات']
-help_msg = f'''
-اهلا عزيزي انت ب قسم المساعدة 
-**لمحة عن البوت**
-البوت هوه عبارة عن انشاء رسالة عبر الازرار
-
-'''
+async def save_data():
+    try:
+        with open('info.json', 'w', encoding='utf-8') as f:
+            json.dump(info, f, ensure_ascii=False, indent=4)
+        return True
+    except Exception as e:
+        await hint(f"خطأ أثناء حفظ البيانات: {e}")
+        return False
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
@@ -30,6 +34,9 @@ async def start(e):
 async def start_callback(e):
     data = e.data.decode('utf-8')
     id = e.sender_id
+    async def return_names(ids):
+        chats = await ABH.get_entity(list(ids))
+        return chats
     if data == 'channels':
         if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
         text = 'قنواتك المضافة'
@@ -38,9 +45,15 @@ async def start_callback(e):
         return await e.edit(text)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
-        await e.edit('ارسل الان يوزر او ايدي القناة')        
-        
-message = {}
+        await e.edit('ارسل الان يوزر او ايدي القناة')
+    else:
+        if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
+        ids = list(id for id in info.get(id).keys())
+        chats = await return_names(ids)        
+        row_button = [Button.inline(ch.title, data=f"delete_channle:{ch.id}") for ch in chats]
+        button = chunk_list(row_button, 2)
+        await e.edit('اختر قناة لحذفها', buttons=button)
+        message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
     session = message.get(e.sender_id) or {}
@@ -209,6 +222,7 @@ async def _send(e):
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 allowed = ['الصور', 'الفيديوهات']
+chat_info = {}
 async def small_filter(e):
     session = message.get(e.sender_id) or {}
     if not session:return
@@ -300,6 +314,64 @@ async def small_filter(e):
         await _send(e)
         await e.reply('تم اضافة الزر', buttons=buttons(e))
         del message[e.sender_id]['step']
+    elif step == 'add_channel':
+        if e.text.startswith('@') or e.text.isdigit() or e.text.startswith('https://'):
+            target = e.text
+        else:
+            return await e.reply('عذرا الايدي او اليوزر غير صحيح')
+        try:
+            chat = await ABH.get_entity(target)
+        except:return await e.edit('عذرا بس ماكدرت اوفر معلومات القناة هاي')
+        if not chat:return await e.reply('عذرا بس ماكو هيج قناة')
+        if not isinstance(chat, Channel) or not chat.broadcast:
+            return await e.reply('صديقي اتفقنه تضيف قناة مو شيء اخر!')
+        try:
+            bot_user = await ABH.get_me()
+            participant = await ABH(GetParticipantRequest(
+                channel=chat,
+                participant=bot_user.id
+            ))    
+            is_admin = isinstance(participant.participant, (ChannelParticipantAdmin))
+            if not is_admin:
+                return await e.reply("البوت مو مشرف! ارفعه مشرف بالاول وعيد المحاولة")
+        except UserNotParticipantError:
+            return await e.reply("❌ البوت غير موجود في القناة! يرجى إضافته ورفعه مشرفاً أولاً.")
+        owner = await get_channel_owner(chat)
+        photo_file = None
+        if chat.photo:
+            photo_bytes = await ABH.download_profile_photo(chat, file=bytes)
+            if photo_bytes:
+                photo_file = BytesIO(photo_bytes)
+                photo_file.name = "photo.jpg"
+        current_second = datetime.now().second
+        chat_info[e.sender_id] = {
+            'channel_name': chat.title,
+            'channel_id': chat.id,
+            'owner': owner.id,
+            'added_by': e.sender_id,
+            'row_text': e.text,
+            'at_time': current_second,
+            }
+        buttons = [
+            Button.inline('نعم', data=f'yes:{chat.id}', style=green),
+            Button.inline('لا', data=f'no:{chat.id}', style=red),
+        ]
+        if photo_file:
+            return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", file=photo_file, buttons=buttons)
+        return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", buttons=buttons)
+@ABH.on(events.CallbackQuery(pattern=b'^(yes|no):$'))
+async def Accept_channle(e):
+    data = e.data.decode('utf-8')
+    arg, chat = data.split(':')
+    id = e.sender_id
+    if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
+    if arg == 'yes':
+        info[id].append(chat_info[e.sender_id])
+        await save_data()
+        await e.edit('تم اضافة القناة ب نجاح')
+    else:
+        del chat_info[id]
+        return await e.edit('تم حذف جلسة اضافة القناة')
 commands = ['اضافة قناة', 'حذف قناة', 'انشاء رسالة', 'نشر رسالة', 'زر']
 text = "\n".join(f'{n}- `{command}`' for n, command in enumerate(commands, start=1))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
