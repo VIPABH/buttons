@@ -133,7 +133,7 @@ async def get_input_media(media_data):
         return types.InputDocument(id=m_id, access_hash=m_hash, file_reference=m_ref)
     return types.InputPhoto(id=m_id, access_hash=m_hash, file_reference=m_ref)
 async def get_channel_owner(chat):
-    async for user in REACTBOT.iter_participants(chat, filter=ChannelParticipantsAdmins()):
+    async for user in ABH.iter_participants(chat, filter=ChannelParticipantsAdmins()):
         if isinstance(user.participant, ChannelParticipantCreator):
             return user
     return None
@@ -172,3 +172,5 @@ async def send(e, text, buttons=None, id=None):
         await hint(f"فشلت محاولة إرسال ميديا الـ profile: {err}")
     msg = await e.reply(text, buttons=buttons)
     return msg
+def chunk_list(lst, n):
+    return [lst[i:i + n] for i in range(0, len(lst), n)]
