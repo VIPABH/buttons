@@ -30,6 +30,7 @@ async def start(e):
     if e.sender_id in data:
         button.append([Button.inline('حذف قناة', data='del_channel', style='danger', icon=5258130763148172425), Button.inline('القنوات', data='channeles', style=blue, icon=5188311512791393083)])
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
+message = {}
 @ABH.on(events.CallbackQuery(pattern='(add|del)_channel|channels'))
 async def start_callback(e):
     data = e.data.decode('utf-8')
@@ -53,7 +54,6 @@ async def start_callback(e):
         row_button = [Button.inline(ch.title, data=f"delete_channle:{ch.id}") for ch in chats]
         button = chunk_list(row_button, 2)
         await e.edit('اختر قناة لحذفها', buttons=button)
-        message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
     session = message.get(e.sender_id) or {}
