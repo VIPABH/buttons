@@ -31,11 +31,11 @@ async def is_user_check(e):
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
     button = [
-        Button.inline('اضف قناة', data='add_channel', style=blue, icon=5280993797482750213)
+        [Button.inline('اضف قناة', data='add_channel', style=blue, icon=5280993797482750213)]
     ]
     if str(e.sender_id) in info:
-        button.append(Button.inline('حذف قناة', data='del_channel', style=red, icon=5258130763148172425))
-        button.append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
+        button.append([Button.inline('حذف قناة', data='del_channel', style=red, icon=5258130763148172425)])
+        button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
 message = {}
 @ABH.on(events.CallbackQuery(pattern='(add|del)_channel|channels'))
