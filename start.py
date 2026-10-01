@@ -56,7 +56,7 @@ async def start_callback(e):
         await e.edit('ارسل الان يوزر او ايدي القناة')
     else:
         if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
-        ids = list(id for id in info.get(id).keys())
+        ids = list(int(id) for id in info.get(id).keys())
         chats = await return_names(ids)        
         row_button = [Button.inline(ch.title, data=f"delete_channle:{ch.id}") for ch in chats]
         button = chunk_list(row_button, 2)
