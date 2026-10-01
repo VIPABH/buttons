@@ -368,6 +368,7 @@ async def handle_yes_no(e):
     arg = e.pattern_match.group(1)    
     chat = int(e.pattern_match.group(2))
     id = e.sender_id
+    print(arg)
     if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
     if arg == 'yes':
         info[id].append(chat_info[e.sender_id])
