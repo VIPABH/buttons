@@ -49,9 +49,10 @@ def buttons(e):
     if len(media) <= 1:
         rows.append([
             Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if not button else blue)])
-    rows.append([
-        Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-        Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),])
+    if any(session.values()):
+        rows.append([
+            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+            Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),])
     rows.append([
         Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
