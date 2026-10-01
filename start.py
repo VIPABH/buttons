@@ -34,10 +34,8 @@ async def start(e):
         Button.inline('اضف قناة', data='add_channel', style='success', icon=5280993797482750213)
     ]
     if e.sender_id in info:
-        button.extend([
-            Button.inline('حذف قناة', data='del_channel', style='danger', icon=5258130763148172425),
-            Button.inline('القنوات', data='channels', style='blue', icon=5188311512791393083)
-        ])
+        button.append(Button.inline('حذف قناة', data='del_channel', style='danger', icon=5258130763148172425))
+        button.append(Button.inline('القنوات', data='channels', style='blue', icon=5188311512791393083))
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
 message = {}
 @ABH.on(events.CallbackQuery(pattern='(add|del)_channel|channels'))
