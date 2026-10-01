@@ -133,7 +133,7 @@ async def callback_handler(e, data):
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
 translate = {"media": 'الميديا', 'buttons': 'الزر'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
-async def handle_buttons_and_media(event):
+async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
     action_type = event.pattern_match.group(1)
