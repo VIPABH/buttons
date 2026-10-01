@@ -365,10 +365,10 @@ async def small_filter(e):
         return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", buttons=buttons)
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no):(-?\d+)$'))
 async def handle_yes_no(e):
-    arg = e.pattern_match.group(1)    
+    arg = e.pattern_match.group(1).decode('utf-8')
     chat = int(e.pattern_match.group(2))
+    print(chat)
     id = e.sender_id
-    print(arg)
     if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
     if arg == 'yes':
         info[id].append(chat_info[e.sender_id])
