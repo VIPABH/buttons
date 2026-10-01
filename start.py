@@ -33,7 +33,7 @@ async def start(e):
     button = [
         Button.inline('اضف قناة', data='add_channel', style='success', icon=5280993797482750213)
     ]
-    if e.sender_id in info:
+    if str(e.sender_id) in info:
         button.append(Button.inline('حذف قناة', data='del_channel', style='danger', icon=5258130763148172425))
         button.append(Button.inline('القنوات', data='channels', style='blue', icon=5188311512791393083))
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
@@ -350,14 +350,14 @@ async def small_filter(e):
             if photo_bytes:
                 photo_file = BytesIO(photo_bytes)
                 photo_file.name = "photo.jpg"
-        current_second = datetime.now().second
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         chat_info.setdefault(e.sender_id, {})
         chat_info[e.sender_id][chat.id] = {
             'channel_name': chat.title,
             'owner': owner.id,
             'added_by': e.sender_id,
             'row_text': e.text,
-            'at_time': current_second,
+            'at_time': current_time,
             }
         buttons = [
             Button.inline('نعم', data=f'yes:{chat.id}', style=green),
