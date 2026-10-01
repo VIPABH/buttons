@@ -372,7 +372,7 @@ async def handle_yes_no(e):
     if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
     if arg == 'yes':
         info.setdefault(e.sender_id, {})
-        info[id].append(chat_info[e.sender_id])
+        info[id].update(chat_info[e.sender_id])
         await save_data()
         await e.edit('تم اضافة القناة ب نجاح')
     else:
