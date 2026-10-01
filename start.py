@@ -19,6 +19,7 @@ help_msg = f'''
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
+    print(message[e.sender_id])
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -137,7 +138,6 @@ async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
     action_type, action_name, num = re.split(r'[_:]', e.data.decode('utf-8'))
-    print(action_name)
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_type
         del message[e.sender_id][action_type][int(num)]
@@ -202,9 +202,6 @@ async def small_filter(e):
     if not step:return
     text = e.text.strip() or None
     if text == 'انشاء رسالة':return
-    if text == 'اطبع':
-        print('session')
-        return
     if step == 'text':
         message[e.sender_id]['text'].append(text)
         await _send(e)
