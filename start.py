@@ -348,9 +348,8 @@ async def small_filter(e):
                 photo_file = BytesIO(photo_bytes)
                 photo_file.name = "photo.jpg"
         current_second = datetime.now().second
-        chat_info[e.sender_id] = {
+        chat_info[e.sender_id][chat.id] = {
             'channel_name': chat.title,
-            'channel_id': chat.id,
             'owner': owner.id,
             'added_by': e.sender_id,
             'row_text': e.text,
@@ -371,6 +370,7 @@ async def handle_yes_no(e):
     id = e.sender_id
     if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
     if arg == 'yes':
+        info.setdefault(e.sender_id, {})
         info[id].append(chat_info[e.sender_id])
         await save_data()
         await e.edit('تم اضافة القناة ب نجاح')
