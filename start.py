@@ -97,7 +97,7 @@ async def callback_handler(e, data):
         caption == f'''
 اختر من النصوص الاتية
 {'\n'.join(formated_text)}
-يرجى اختيار رقم النص لتعديله
+يرجى ارسال رقم النص لتعديله
         '''
         await e.edit(caption)
     elif data == 'media':
@@ -105,8 +105,8 @@ async def callback_handler(e, data):
         await e.edit('اضغط على ازرار الفيديو للتخصيص')
         for num, item in enumerate(media, start=0):
             b = [
-                Button.inline('تغيير الفيديو', data=f'video_change:{num}', style=blue, icon=5264727218734524899),
-                Button.inline('حذف الفيديو', data=f'video_delete:{num}', style=blue, icon=5465665476971471368)]
+                Button.inline('تغيير الفيديو', data=f'media_change:{num}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف الفيديو', data=f'media_delete:{num}', style=blue, icon=5465665476971471368)]
             m = await get_input_media(item)
             await ABH.send_file(e.chat_id, file=m, buttons=b)
     elif data == 'buttons':
@@ -127,10 +127,25 @@ async def callback_handler(e, data):
                 formatted_buttons.append([Button.url(name, url, style=coloer)])
             buttons_to_send = formatted_buttons if formatted_buttons else None
             b = [
-                Button.inline('تعديل الزر', data=f'button_edit:{num}', style=blue, icon=5264727218734524899),
-                Button.inline('حذف الزر', data=f'button_delete:{num}', style=blue, icon=5465665476971471368)]
+                Button.inline('تعديل الزر', data=f'buttons_change:{num}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف الزر', data=f'buttons_delete:{num}', style=blue, icon=5465665476971471368)]
             buttons_to_send.append(b)
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
+translate = {"media": 'الميديا', 'buttons': 'الزر'}
+@ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
+async def handle_buttons_and_media(event):
+    if not e.sender_id in message:
+        return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
+    action_type = event.pattern_match.group(1)
+    action_name = event.pattern_match.group(2)
+    num = event.pattern_match.group(3)
+    if action_name == 'change':
+        message.setdefault(e.sender_id, {})['step'] = action_type
+        del message[e.sender_id][action_type][num]
+        await e.edit(f'ارسل الان {translate}')
+    else:
+        del message[e.sender_id]['buttons'][num]
+        await e.edit(f'تم ب نجاح حذف {translate}')
 async def _send(e):
     user_id = e.sender_id    
     if user_id not in message:return
@@ -188,6 +203,7 @@ async def small_filter(e):
     if not step:return
     text = e.text.strip() or None
     if text == 'انشاء رسالة':return
+    if text == 'اطبع':return print('session')
     if step == 'text':
         message[e.sender_id]['text'].append(text)
         await _send(e)
