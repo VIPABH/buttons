@@ -139,13 +139,14 @@ async def handle_buttons_and_media(e):
     action_type = e.pattern_match.group(1)
     action_name = e.pattern_match.group(2)
     num = int(e.pattern_match.group(3))
+    print(action_name)
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_type
         del message[e.sender_id][action_type][num]
-        await e.edit(f'ارسل الان {translate}')
+        await e.edit(f'ارسل الان {translate[action_type]}')
     else:
         del message[e.sender_id]['buttons'][num]
-        await e.edit(f'تم ب نجاح حذف {translate}')
+        await e.edit(f'تم ب نجاح حذف {translate[action_name]}')
 async def _send(e):
     user_id = e.sender_id    
     if user_id not in message:return
@@ -203,7 +204,9 @@ async def small_filter(e):
     if not step:return
     text = e.text.strip() or None
     if text == 'انشاء رسالة':return
-    if text == 'اطبع':return print('session')
+    if text == 'اطبع':
+        print('session')
+        return
     if step == 'text':
         message[e.sender_id]['text'].append(text)
         await _send(e)
