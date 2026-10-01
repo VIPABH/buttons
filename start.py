@@ -57,8 +57,8 @@ async def start_callback(e):
     else:
         if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
         ids = list(int(id) for id in info.get(id).keys())
-        chats = await return_names(ids)        
-        row_button = [Button.inline(ch.title, data=f"delete_channle:{ch.id}") for ch in chats]
+        chats = await return_names(ids)
+        row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}") for ch in chats]
         button = chunk_list(row_button, 2)
         await e.edit('اختر قناة لحذفها', buttons=button)
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
@@ -366,7 +366,7 @@ async def small_filter(e):
         if photo_file:
             return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", file=photo_file, buttons=buttons)
         return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", buttons=buttons)
-@ABH.on(events.CallbackQuery(pattern=r'^(yes|no):(-?\d+)$'))
+@ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle):(-?\d+)$'))
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
     chat = int(e.pattern_match.group(2))
@@ -378,6 +378,13 @@ async def handle_yes_no(e):
         await save_data()
         del chat_info[id]
         await e.edit('تم اضافة القناة ب نجاح')
+    elif arg == "ok_delete_channle":
+        deleted_channel = info.get(e.sender_id, {}).pop(chat_id, None)
+        await save_data()
+        if deleted_channel:
+            return await e.edit('تم حذف القناة ب نجاح')
+        else:
+            return await e.edit('تم حذف القناة مسبقا!!َ!')
     else:
         del chat_info[id]
         return await e.edit('تم حذف جلسة اضافة القناة')
