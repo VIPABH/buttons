@@ -8,7 +8,7 @@ from telethon import events
 from helpers import *
 from client import *
 import re, asyncio
-data = create('info.json')
+info = create('info.json')
 not_allowed = ['الفويسات', 'الستيكرات', 'الفويس نوت', 'المتحركات']
 help_msg = f'''
 اهلا عزيزي انت ب قسم المساعدة 
@@ -19,7 +19,6 @@ help_msg = f'''
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
-    print(message[e.sender_id])
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -27,6 +26,20 @@ async def start(e):
     if e.sender_id in data:
         button.append([Button.inline('حذف قناة', data='del_channel', style='danger', icon=5258130763148172425), Button.inline('القنوات', data='channeles', style=blue, icon=5188311512791393083)])
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
+@ABH.on(events.CallbackQuery(pattern='(add|del)_channel|channels'))
+async def start_callback(e):
+    data = e.data.decode('utf-8')
+    id = e.sender_id
+    if data == 'channels':
+        if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
+        text = 'قنواتك المضافة'
+        for num, ch in enumerate(info[id], start=1):
+            text+=f'\n{num}- ( `{ch}` )'
+        return await e.edit(text)
+    elif data.startswith('add'):
+        message.setdefault(e.sender_id, {})['step'] = data
+        await e.edit('ارسل الان يوزر او ايدي القناة')        
+        
 message = {}
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
@@ -60,7 +73,7 @@ def buttons(e):
 async def create_message(e):
     id = e.sender_id
     if id not in message:
-        message[id] = {'text': [], 'media': [], 'buttons': [], "types": set()}
+        message[id] = {'text': [], 'media': [], 'buttons': []}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern='(set_|del|edit_)'))
 async def create_message_callback(e):
