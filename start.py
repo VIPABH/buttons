@@ -370,13 +370,13 @@ async def small_filter(e):
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
     chat = int(e.pattern_match.group(2))
-    print(chat)
     id = e.sender_id
     if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
     if arg == 'yes':
         info.setdefault(e.sender_id, {})
         info[id].update(chat_info[e.sender_id])
         await save_data()
+        del chat_info[id]
         await e.edit('تم اضافة القناة ب نجاح')
     else:
         del chat_info[id]
