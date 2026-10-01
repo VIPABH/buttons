@@ -136,9 +136,9 @@ translate = {"media": 'الميديا', 'buttons': 'الزر'}
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
-    action_type = event.pattern_match.group(1)
-    action_name = event.pattern_match.group(2)
-    num = event.pattern_match.group(3)
+    action_type = e.pattern_match.group(1)
+    action_name = e.pattern_match.group(2)
+    num = e.pattern_match.group(3)
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_type
         del message[e.sender_id][action_type][num]
