@@ -41,7 +41,7 @@ message = {}
 @ABH.on(events.CallbackQuery(pattern='(add|remove)_channel|channels'))
 async def start_callback(e):
     data = e.data.decode('utf-8')
-    id = e.sender_id
+    id = str(e.sender_id)
     async def return_names(ids):
         chats = await ABH.get_entity(list(ids))
         return chats
