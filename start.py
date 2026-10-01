@@ -348,6 +348,7 @@ async def small_filter(e):
                 photo_file = BytesIO(photo_bytes)
                 photo_file.name = "photo.jpg"
         current_second = datetime.now().second
+        chat_info.setdefault(e.sender_id, {})
         chat_info[e.sender_id][chat.id] = {
             'channel_name': chat.title,
             'owner': owner.id,
