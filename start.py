@@ -28,6 +28,8 @@ async def save_data():
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
+    if e.text == 'اطبع':
+        print(f'{info[e.sender_id]}')
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -49,8 +51,12 @@ async def start_callback(e):
     if data == 'channels':
         if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
         text = 'قنواتك المضافة'
-        for num, ch in enumerate(info[id], start=1):
-            text+=f'\n{num}- ( `{ch}` )'
+        ids = []
+        for ch in info[id]:
+            ids.append(ch)
+        chats = await get_entity(ids)
+        row_names = [f'( {chat.title} ) - ( `{chat.id}` )' for chat in chats]
+        text += '\n'.join(row_names)
         return await e.edit(text)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
