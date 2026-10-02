@@ -9,6 +9,7 @@ from telethon.tl.types import (
     MessageMediaPoll, MessageExtendedMedia,)
 from telethon.tl.types import MessageEntityCustomEmoji
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import re, asyncio, os, json
 from telethon import events
 from io import BytesIO
@@ -350,7 +351,7 @@ async def small_filter(e):
             if photo_bytes:
                 photo_file = BytesIO(photo_bytes)
                 photo_file.name = "photo.jpg"
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        current_time = datetime.now(ZoneInfo("Asia/Baghdad")).strftime("%Y-%m-%d %H:%M:%S")
         chat_info.setdefault(e.sender_id, {})
         chat_info[e.sender_id][chat.id] = {
             'channel_name': chat.title,
@@ -363,6 +364,7 @@ async def small_filter(e):
             Button.inline('نعم', data=f'yes:{chat.id}', style=green),
             Button.inline('لا', data=f'no:{chat.id}', style=red),
         ]
+        del message[e.sender_id]['step'] 
         if photo_file:
             return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", file=photo_file, buttons=buttons)
         return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", buttons=buttons)
