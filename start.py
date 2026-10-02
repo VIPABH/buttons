@@ -52,7 +52,7 @@ async def start_callback(e):
         text = 'قنواتك المضافة'
         ids = []
         for ch in info[id]:
-            ids.append(ch)
+            ids.append(int(ch))
         chats = await return_names(ids)
         row_names = [f'( {chat.title} ) - ( `{chat.id}` )' for chat in chats]
         text += '\n'.join(row_names)
