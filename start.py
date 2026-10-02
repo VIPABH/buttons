@@ -381,10 +381,7 @@ async def handle_yes_no(e):
     elif arg == "ok_delete_channle":
         del info[str(id)][chat]
         await save_data()
-        if deleted_channel:
-            return await e.edit('تم حذف القناة ب نجاح')
-        else:
-            return await e.edit('تم حذف القناة مسبقا!!َ!')
+        return await e.edit('تم حذف القناة ب نجاح')
     else:
         if not id in chat_info:return await e.edit("جلسة حذف القناة انتهت, عيد المحاولة!")
         del chat_info[id]
