@@ -369,7 +369,7 @@ async def small_filter(e):
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle):(-?\d+)$'))
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
-    chat = str(e.pattern_match.group(2))
+    chat = str(e.pattern_match.group(2).decode('utf-8'))
     id = e.sender_id
     if arg == 'yes':
         if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
