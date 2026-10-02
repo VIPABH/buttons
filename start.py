@@ -59,7 +59,7 @@ async def start_callback(e):
         if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
         ids = list(int(id) for id in info.get(id).keys())
         chats = await return_names(ids)
-        row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}") for ch in chats]
+        row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}", style=red, icon=5258130763148172425) for ch in chats]
         button = chunk_list(row_button, 2)
         await e.edit('اختر قناة لحذفها', buttons=button)
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
