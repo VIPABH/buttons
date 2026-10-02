@@ -33,7 +33,7 @@ async def start(e):
     button = [
         [Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213)]
     ]
-    if str(e.sender_id) in info:
+    if str(e.sender_id) in info and info[str(e.sender_id)].keys():
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
