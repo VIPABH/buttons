@@ -379,7 +379,7 @@ async def handle_yes_no(e):
         del chat_info[id]
         await e.edit('تم اضافة القناة ب نجاح')
     elif arg == "ok_delete_channle":
-        deleted_channel = info.get(str(e.sender_id), {}).pop(chat, None)
+        del info[id][chat]
         await save_data()
         if deleted_channel:
             return await e.edit('تم حذف القناة ب نجاح')
