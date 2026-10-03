@@ -54,7 +54,7 @@ async def start_callback(e):
         for ch in info[id]:
             ids.append(int(ch))
         chats = await return_names(ids)
-        row_names = [f'( {chat.title} ) - ( `{chat.id}` )' for chat in chats]
+        row_names = [f'{num} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
         return await e.edit(text)
     elif data.startswith('add'):
@@ -357,10 +357,13 @@ async def small_filter(e):
                 photo_file = BytesIO(photo_bytes)
                 photo_file.name = "photo.jpg"
         current_time = datetime.now(ZoneInfo("Asia/Baghdad")).strftime("%Y-%m-%d %H:%M:%S")
+        participants = await ABH.get_participants(chat, limit=0)
+        members_count = participants.total
         chat_info.setdefault(e.sender_id, {})
         chat_info[e.sender_id][chat.id] = {
             'channel_name': chat.title,
             'owner': owner.id,
+            'count': members_count,
             'added_by': e.sender_id,
             'row_text': e.text,
             'at_time': current_time,
@@ -370,9 +373,10 @@ async def small_filter(e):
             Button.inline('لا', data=f'no:{chat.id}', style=red),
         ]
         del message[e.sender_id]['step'] 
+        caption = f"القناة ( {chat.title} ) \n مشتركينها ( {members_count} )\n ⚙️ **هل تريد حفظ القناة؟:**"
         if photo_file:
-            return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", file=photo_file, buttons=buttons)
-        return await e.reply("⚙️ **هل تريد حفظ القناة؟:**", buttons=buttons)
+            return await e.reply(caption, file=photo_file, buttons=buttons)
+        return await e.reply(caption, buttons=buttons)
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle):(-?\d+)$'))
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
