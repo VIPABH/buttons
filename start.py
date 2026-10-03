@@ -41,12 +41,12 @@ async def start(e):
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
 message = {}
+async def return_names(ids):
+    return await ABH.get_entity(list(ids))
 @ABH.on(events.CallbackQuery(pattern='(add|remove)_channel|channels'))
 async def start_callback(e):
     data = e.data.decode('utf-8')
     id = str(e.sender_id)
-    async def return_names(ids):
-        return await ABH.get_entity(list(ids))
     if data == 'channels':
         if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
         text = 'قنواتك المضافة\n'
