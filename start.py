@@ -338,6 +338,7 @@ async def small_filter(e):
         if not chat:return await e.reply('عذرا بس ماكو هيج قناة')
         if not isinstance(chat, Channel) or not chat.broadcast:
             return await e.reply('صديقي اتفقنه تضيف قناة مو شيء اخر!')
+        info.setdefault(str(e.sender_id), {})
         info.get(str(e.sender_id), {})
         if str(chat.id) in info:
             return await e.edit('عذرا بس القناة هاي ضايفها انت من قبل')
