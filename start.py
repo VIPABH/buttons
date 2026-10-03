@@ -338,6 +338,8 @@ async def small_filter(e):
         if not chat:return await e.reply('عذرا بس ماكو هيج قناة')
         if not isinstance(chat, Channel) or not chat.broadcast:
             return await e.reply('صديقي اتفقنه تضيف قناة مو شيء اخر!')
+        if str(chat.id) in info[str(e.sender_id)]:
+            return await e.edit('عذرا بس القناة هاي ضايفها انت من قبل')
         try:
             bot_user = await ABH.get_me()
             participant = await ABH(GetParticipantRequest(
