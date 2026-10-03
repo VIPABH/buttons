@@ -195,7 +195,7 @@ async def _send(e, chat=None):
     if user_id not in message:return
     chat_id = chat if chat else e.chat_id
     session = message[user_id]
-    row_text = session.get('text') or ["معاينة الرسالة:"]
+    row_text = session.get('text') or ["BY - @itsButtonBot"]
     text = ' \n '.join(row_text)
     raw_media = session.get('media', [])
     raw_buttons = session.get('buttons', [])
