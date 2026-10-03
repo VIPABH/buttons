@@ -101,7 +101,7 @@ async def create_message(e):
     if id not in message:
         message[id] = {'text': [], 'media': [], 'buttons': []}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
-@ABH.on(events.CallbackQuery(pattern='(set_|del|edit_)'))
+@ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done)'))
 async def create_message_callback(e):
     data = e.data.decode('utf-8')
     if not e.sender_id in message:
