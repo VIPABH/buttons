@@ -254,6 +254,7 @@ async def small_filter(e):
     if text == 'انشاء رسالة':
         return
     if step == 'text':
+        message.setdefault(e.sender_id, {}).setdefault('text', [])
         message[e.sender_id]['text'].append(text)
         await _send(e)
         await e.reply('تم اضافة النص', buttons=buttons(e))
@@ -266,6 +267,8 @@ async def small_filter(e):
                 if Type != old_type and Type not in allowed and old_type not in allowed:
                     del message[e.sender_id]['step']
                     return await e.reply('عذرا بس ماكدر ارسل نوعين مختلفات')
+            
+            message.setdefault(e.sender_id, {}).setdefault('media', [])
             if len(message[e.sender_id]['media']) > 1 and Type in not_allowed:
                 del message[e.sender_id]['step']
                 return await e.reply(f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة')
@@ -288,6 +291,7 @@ async def small_filter(e):
     elif step == 'buttons':
         if not text:
             return await e.reply('ارسل اسم الزر!')
+        message.setdefault(e.sender_id, {}).setdefault('buttons', [])
         if '-' in text:
             name, url = text.split('-', 1)
             name, url = name.strip(), url.strip()
