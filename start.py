@@ -379,7 +379,7 @@ async def handle_yes_no(e):
     chat = str(e.pattern_match.group(2).decode('utf-8'))
     id = str(e.sender_id)
     if arg == 'yes':
-        if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
+        if not e.sender_id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
         info.setdefault(id, {})
         info[id].update(chat_info[id])
         await save_data()
@@ -390,7 +390,7 @@ async def handle_yes_no(e):
         await save_data()
         return await e.edit('تم حذف القناة ب نجاح')
     else:
-        if not int(e.sender_id) in chat_info:return await e.edit("جلسة حذف القناة انتهت, عيد المحاولة!")
+        if not e.sender_id in chat_info:return await e.edit("جلسة حذف القناة انتهت, عيد المحاولة!")
         del chat_info[id]
         return await e.edit('تم حذف جلسة اضافة القناة')
 commands = ['اضافة قناة', 'حذف قناة', 'انشاء رسالة', 'نشر رسالة', 'زر']
