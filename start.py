@@ -190,7 +190,7 @@ async def handle_buttons_and_media(e):
     else:
         del message[e.sender_id]['buttons'][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}')
-async def _send(e, chat):
+async def _send(e, chat=None):
     user_id = e.sender_id    
     if user_id not in message:return
     chat_id = chat if chat else e.chat_id
