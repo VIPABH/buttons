@@ -423,7 +423,7 @@ async def handle_yes_no(e):
         info[user_key].pop(chan_key, None)
         await save_data()
         return await e.edit('تم حذف القناة ب نجاح')
-    elif data == 'post':
+    elif arg == 'post':
         if not message.get(e.sender_id, None):
             return await e.edit('ماعندك جلسة رسالة نشطة')
         await _send(e, int(chan_key))
