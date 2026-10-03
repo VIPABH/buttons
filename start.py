@@ -49,7 +49,7 @@ async def start_callback(e):
         return await ABH.get_entity(list(ids))
     if data == 'channels':
         if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
-        text = 'قنواتك المضافة'
+        text = 'قنواتك المضافة\n'
         ids = []
         for ch in info[id]:
             ids.append(int(ch))
@@ -377,16 +377,16 @@ async def small_filter(e):
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
     chat = str(e.pattern_match.group(2).decode('utf-8'))
-    id = e.sender_id
+    id = str(e.sender_id)
     if arg == 'yes':
         if not id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
-        info.setdefault(e.sender_id, {})
-        info[id].update(chat_info[e.sender_id])
+        info.setdefault(id, {})
+        info[id].update(chat_info[id])
         await save_data()
         del chat_info[id]
         await e.edit('تم اضافة القناة ب نجاح')
     elif arg == "ok_delete_channle":
-        del info[str(id)][chat]
+        del info[id][chat]
         await save_data()
         return await e.edit('تم حذف القناة ب نجاح')
     else:
