@@ -367,8 +367,8 @@ async def small_filter(e):
         chat_info[e.sender_id][chat.id] = {
             'channel_name': chat.title,
             'owner': owner.id,
-            'count': members_count,
             'added_by': e.sender_id,
+            'count': members_count,
             'row_text': e.text,
             'at_time': current_time,
             }
@@ -377,7 +377,7 @@ async def small_filter(e):
             Button.inline('لا', data=f'no:{chat.id}', style=red),
         ]
         del message[e.sender_id]['step'] 
-        caption = f"القناة ( {chat.title} ) \n مشتركينها ( {members_count} )\n ⚙️ **هل تريد حفظ القناة؟:**"
+        caption = f"القناة ( {chat.title} )\n مشتركينها ( {members_count} )\n ⚙️ **هل تريد حفظ القناة؟:**"
         if photo_file:
             return await e.reply(caption, file=photo_file, buttons=buttons)
         return await e.reply(caption, buttons=buttons)
@@ -388,6 +388,8 @@ async def handle_yes_no(e):
     id = e.sender_id
     if arg == 'yes':
         if not e.sender_id in chat_info:return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
+        if sender_id not in info:
+            info[sender_id] = {}
         info[str(e.sender_id)].update(chat_info[id])
         await save_data()
         del chat_info[id]
