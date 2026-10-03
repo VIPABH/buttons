@@ -132,7 +132,7 @@ async def create_message_callback(e):
         return await callback_handler(e, data)
     if data == 'done':
         ids = [id for id in info[str(e.sender_id)]]
-        chats = return_names(ids)
+        chats = await return_names(ids)
         b = [Button.inline(chat.title, data=f'post:{chat.id}') for chat in chats]
         await e.edit("اختار قناة للنشر فيها", buttons=b)
 async def callback_handler(e, data):
