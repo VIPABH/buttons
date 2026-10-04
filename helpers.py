@@ -137,7 +137,7 @@ async def get_channel_owner(chat):
         if isinstance(user.participant, ChannelParticipantCreator):
             return user
     return None
-async def send(e, text, buttons=None, id=None):
+async def send(e, text, buttons=None, id=None, edit=None):
     user_id = id or e.sender_id
     msg_id = getattr(e, 'message_id', None) or (e.message.id if hasattr(e, 'message') else e.id)
     msg = None
@@ -145,6 +145,8 @@ async def send(e, text, buttons=None, id=None):
         user_entity = await ABH.get_entity(user_id)
         photos = await ABH.get_profile_photos(user_entity, limit=1)
         if photos:
+            if edit:
+                return await e.edit(text, file=photos[0], buttons=buttons)
             msg = await ABH.send_file(
                 e.chat_id, 
                 file=photos[0], 
