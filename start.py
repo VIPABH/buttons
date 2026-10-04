@@ -25,6 +25,8 @@ async def save_data():
     except Exception as e:
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
+back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148172425)]
+_back = [Button.inline('أظهار الازرار', data='back', style=red, icon=5258130763148172425)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
@@ -48,7 +50,7 @@ async def start_callback(e):
     data = e.data.decode('utf-8')
     id = str(e.sender_id)
     if data == 'channels':
-        if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
+        if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة', buttons=back)
         text = 'قنواتك المضافة\n'
         ids = []
         for ch in info[id]:
@@ -56,10 +58,10 @@ async def start_callback(e):
         chats = await return_names(ids)
         row_names = [f'{num} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
-        return await e.edit(text)
+        return await e.edit(text, buttons=back)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
-        await e.edit('ارسل الان يوزر او ايدي القناة')
+        await e.edit('ارسل الان يوزر او ايدي القناة', buttons=back)
     elif data == 'create_message':
         id = e.sender_id
         if id not in message:
@@ -106,15 +108,21 @@ async def create_message(e):
     if id not in message:
         message[id] = {'text': [], 'media': [], 'buttons': []}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
-@ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done)'))
+@ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back)'))
 async def create_message_callback(e):
     data = e.data.decode('utf-8')
     if not e.sender_id in message:
-        return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
+        return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     session = message.get(e.sender_id, None)
     if data == 'del_all':
         del message[e.sender_id]
         return await e.edit('تم حذف الجلسة')
+    if data == 'back':
+        step = session.get('step')
+        if step:
+            await e.edit('تم الرجوع خطوة الى الخلف', buttons=buttons(e))
+        else:
+            await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     if data == 'delete':
         text = session.get('text')
         media = session.get('media')
@@ -131,7 +139,7 @@ async def create_message_callback(e):
     if data.startswith('set_'):
         data = data.replace('set_', '')
         message[e.sender_id]['step'] = data
-        return await e.edit(arg[data])
+        return await e.edit(arg[data], buttons=back)
     if data.startswith('edit_'):
         data = data.replace('edit_', '')
         return await callback_handler(e, data)
@@ -150,10 +158,10 @@ async def callback_handler(e, data):
 {'\n'.join(formated_text)}
 يرجى ارسال رقم النص لتعديله
         '''
-        await e.edit(caption)
+        await e.edit(caption, buttons=back)
     elif data == 'media':
         media = session.get('media')
-        await e.edit('اضغط على ازرار الفيديو للتخصيص')
+        await e.edit('اضغط على ازرار الفيديو للتخصيص', buttons=back)
         for num, item in enumerate(media, start=0):
             b = [
                 Button.inline('تغيير الفيديو', data=f'media_change:{num}', style=blue, icon=5264727218734524899),
@@ -161,7 +169,7 @@ async def callback_handler(e, data):
             m = await get_input_media(item)
             await ABH.send_file(e.chat_id, file=m, buttons=b)
     elif data == 'buttons':
-        await e.edit('اضغط على الازرار للتخصيص')
+        await e.edit('اضغط على الازرار للتخصيص', buttons=back)
         button = session.get('buttons')
         for num, item in enumerate(button, start=0):
             formatted_buttons = []
@@ -179,22 +187,23 @@ async def callback_handler(e, data):
             buttons_to_send = formatted_buttons if formatted_buttons else None
             b = [
                 Button.inline('تعديل الزر', data=f'buttons_change:{num}', style=blue, icon=5264727218734524899),
-                Button.inline('حذف الزر', data=f'buttons_delete:{num}', style=blue, icon=5465665476971471368)]
+                Button.inline('حذف الزر', data=f'buttons_delete:{num}', style=blue, icon=5465665476971471368),
+                back[0]]
             buttons_to_send.append(b)
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
 translate = {"media": 'الميديا', 'buttons': 'الزر'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
-        return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة')
+        return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     action_type, action_name, num = re.split(r'[_:]', e.data.decode('utf-8'))
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_type
         del message[e.sender_id][action_type][int(num)]
-        await e.edit(f'ارسل الان {translate[action_type]}')
+        await e.edit(f'ارسل الان {translate[action_type]}', buttons=back)
     else:
         del message[e.sender_id]['buttons'][int(num)]
-        await e.edit(f'تم ب نجاح حذف {translate[action_name]}')
+        await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
 async def _send(e, chat=None):
     user_id = e.sender_id    
     if user_id not in message:return
@@ -250,14 +259,11 @@ chat_info = {}
 async def small_filter(e):
     user_key = str(e.sender_id)
     session = message.get(e.sender_id) or {}
-    if not session:
-        return
+    if not session:return
     step = session.get('step')
-    if not step:
-        return
+    if not step:return
     text = e.text.strip() or None
-    if text == 'انشاء رسالة':
-        return
+    if text == 'انشاء رسالة':return
     if step == 'text':
         message.setdefault(e.sender_id, {}).setdefault('text', [])
         message[e.sender_id]['text'].append(text)
@@ -271,12 +277,12 @@ async def small_filter(e):
             if old_type:
                 if Type != old_type and Type not in allowed and old_type not in allowed:
                     del message[e.sender_id]['step']
-                    return await e.reply('عذرا بس ماكدر ارسل نوعين مختلفات')
+                    return await e.reply('عذرا بس ماكدر ارسل نوعين مختلفات', buttons=back)
             
             message.setdefault(e.sender_id, {}).setdefault('media', [])
             if len(message[e.sender_id]['media']) > 1 and Type in not_allowed:
                 del message[e.sender_id]['step']
-                return await e.reply(f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة')
+                return await e.reply(f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة', buttons=back)
             message[e.sender_id]['media'].append(await extract_media_data(e))
             message[e.sender_id]['type'] = Type
             if text:
@@ -291,7 +297,7 @@ async def small_filter(e):
             await e.reply('تم اضافة الميديا', buttons=buttons(e))
             del message[e.sender_id]['step']
         else:
-            await e.reply('عذرا عزيزي لازم ترسل ميديا مناسبة')
+            await e.reply('عذرا عزيزي لازم ترسل ميديا مناسبة', buttons=back)
             del message[e.sender_id]['step']
     elif step == 'buttons':
         if not text:
@@ -309,10 +315,10 @@ async def small_filter(e):
         else:
             message[e.sender_id]['temp_btn_name'] = text
             message[e.sender_id]['step'] = 'url'
-            await e.reply('تم اضافة اسم الزر\n ارسل الرابط')
+            await e.reply('تم اضافة اسم الزر\n ارسل الرابط', buttons=back)
     elif step == 'url':
         if not text or not text.startswith(('http://', 'https://', 't.me', 'tg://')):
-            return await e.reply('الرابط غير صالح!')
+            return await e.reply('الرابط غير صالح!', buttons=back)
         message[e.sender_id]['url'] = text
         message[e.sender_id]['step'] = 'coloer_button'
         await e.reply('تم اضافة الرابط \n ارسل لون الزر')
@@ -320,8 +326,7 @@ async def small_filter(e):
         COLORS_NAME = {'ازرق': 'primary', 'احمر': 'danger', 'اخضر': 'success', 'شفاف': None}
         if text not in COLORS_NAME:
             return await e.reply(
-                f"عذرا صديقي لازم تختار لون مناسب\nالالوان المتاحة ( {' و '.join(COLORS_NAME.keys())} )"
-            )
+                f"عذرا صديقي لازم تختار لون مناسب\nالالوان المتاحة ( {' و '.join(COLORS_NAME.keys())} )", buttons=back)
         message[e.sender_id]['coloer_button'] = COLORS_NAME[text]
         message[e.sender_id]['step'] = 'icon'
         await e.reply('تم اضافة لون الزر \n ارسل ايقونه الزر')
@@ -351,20 +356,20 @@ async def small_filter(e):
         if raw.startswith('@') or raw.isdigit() or raw.startswith('https://'):
             target = raw
         else:
-            return await e.reply('عذرا الايدي او اليوزر غير صحيح')
+            return await e.reply('عذرا الايدي او اليوزر غير صحيح', buttons=back)
         try:
             chat = await ABH.get_entity(target)
         except Exception:
-            return await e.reply('عذرا بس ماكدرت اوفر معلومات القناة هاي')
+            return await e.reply('عذرا بس ماكدرت اوفر معلومات القناة هاي', buttons=back)
         if not chat:
-            return await e.reply('عذرا بس ماكو هيج قناة')
+            return await e.reply('عذرا بس ماكو هيج قناة', buttons=back)
         if not isinstance(chat, Channel) or not chat.broadcast:
-            return await e.reply('صديقي اتفقنه تضيف قناة مو شيء اخر!')
+            return await e.reply('صديقي اتفقنه تضيف قناة مو شيء اخر!', buttons=back)
         chan_key = str(chat.id)
         if not isinstance(info.get(user_key), dict):
             info[user_key] = {}
         if chan_key in info[user_key]:
-            return await e.reply('عذرا بس القناة هاي ضايفها انت من قبل')
+            return await e.reply('عذرا بس القناة هاي ضايفها انت من قبل', buttons=back)
         try:
             bot_user = await ABH.get_me()
             participant = await ABH(GetParticipantRequest(
@@ -373,9 +378,9 @@ async def small_filter(e):
             ))
             is_admin = isinstance(participant.participant, ChannelParticipantAdmin)
             if not is_admin:
-                return await e.reply("البوت مو مشرف! ارفعه مشرف بالاول وعيد المحاولة")
+                return await e.reply("البوت مو مشرف! ارفعه مشرف بالاول وعيد المحاولة", buttons=back)
         except UserNotParticipantError:
-            return await e.reply("❌ البوت غير موجود في القناة! يرجى إضافته ورفعه مشرفاً أولاً.")
+            return await e.reply("❌ البوت غير موجود في القناة! يرجى إضافته ورفعه مشرفاً أولاً.", buttons=back)
         owner = await get_channel_owner(chat)
         photo_file = None
         if chat.photo:
@@ -418,32 +423,32 @@ async def handle_yes_no(e):
     if arg == 'yes':
         pending = chat_info.get(user_key, {}).get(chan_key)
         if not pending:
-            return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!")
+            return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!", buttons=back)
         if chan_key in info[user_key]:
             chat_info.get(user_key, {}).pop(chan_key, None)
-            return await e.edit('القناة مضافة من قبل')
+            return await e.edit('القناة مضافة من قبل', buttons=back)
         info[user_key][chan_key] = pending
         await save_data()
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
-        await e.edit('تم اضافة القناة ب نجاح')
+        await e.edit('تم اضافة القناة ب نجاح', buttons=back)
     elif arg == 'ok_delete_channle':
         info[user_key].pop(chan_key, None)
         await save_data()
-        return await e.edit('تم حذف القناة ب نجاح')
+        return await e.edit('تم حذف القناة ب نجاح', buttons=back)
     elif arg == 'post':
         if not message.get(e.sender_id, None):
-            return await e.edit('ماعندك جلسة رسالة نشطة')
+            return await e.edit('ماعندك جلسة رسالة نشطة', buttons=back)
         await _send(e, int(chan_key))
-        await e.edit('تم النشر ب نجاح')
+        await e.edit('تم النشر ب نجاح', buttons=back)
     else:
         if chan_key not in chat_info.get(user_key, {}):
-            return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!")
+            return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=back)
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
-        return await e.edit('تم الغاء اضافة القناة')
+        return await e.edit('تم الغاء اضافة القناة', buttons=back)
 commands = ['اضافة قناة', 'حذف قناة', 'القنوات', 'انشاء رسالة', 'نشر رسالة', 'زر']
 text = "\n".join(f'{n}- `{command}`' for n, command in enumerate(commands, start=1))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
