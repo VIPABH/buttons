@@ -113,14 +113,15 @@ async def create_message_callback(e):
     data = e.data.decode('utf-8')
     session = message.get(e.sender_id, None)
     if data == 'back':
+        b = buttons(e)
         if session:
             step = session.get('step')
             if step:
                 del message[e.sender_id]['step']
-                return await e.edit('تم الرجوع خطوة الى الخلف', buttons=buttons(e))
+                return await e.edit('تم الرجوع خطوة الى الخلف', buttons=b)
             else:
-                return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
-        return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
+                return await e.edit('اختار من الازرار عزيزي', buttons=b)
+        return await e.edit('اختار من الازرار عزيزي', buttons=b)
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     if data == 'del_all':
