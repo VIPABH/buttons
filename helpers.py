@@ -142,6 +142,23 @@ async def send(e, text, buttons=None, id=None, edit=None):
     msg_id = getattr(e, 'message_id', None) or (e.message.id if hasattr(e, 'message') else e.id)
     msg = None
     try:
+        p = profile(user_id)
+        if p and p.get('media'):
+            input_media = await get_input_media(p.get('media'))
+            if input_media:
+                if edit:
+                    return await e.edit(text, file=input_media, buttons=buttons)                
+                msg = await ABH.send_file(
+                    e.chat_id, 
+                    file=input_media, 
+                    caption=text, 
+                    buttons=buttons, 
+                    reply_to=msg_id
+                )
+                return msg
+    except Exception as err:
+        await hint(f"فشلت محاولة إرسال ميديا الـ profile: {err}")
+    try:
         user_entity = await ABH.get_entity(user_id)
         photos = await ABH.get_profile_photos(user_entity, limit=1)
         if photos:
@@ -157,21 +174,8 @@ async def send(e, text, buttons=None, id=None, edit=None):
             return msg
     except Exception as err:
         await hint(f"فشلت محاولة إرسال افتار الـ ID: {err}")
-    try:
-        p = profile(user_id)
-        if p and p.get('media'):
-            input_media = await get_input_media(p.get('media'))
-            if input_media:
-                msg = await ABH.send_file(
-                    e.chat_id, 
-                    file=input_media, 
-                    caption=text, 
-                    buttons=buttons, 
-                    reply_to=msg_id
-                )
-                return msg
-    except Exception as err:
-        await hint(f"فشلت محاولة إرسال ميديا الـ profile: {err}")
+    if edit:
+        return await e.edit(text, buttons=buttons)
     msg = await e.reply(text, buttons=buttons)
     return msg
 def chunk_list(lst, n):
