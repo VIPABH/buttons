@@ -28,8 +28,6 @@ async def save_data():
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
-    if e.text == 'اطبع':
-        print(f'{info[str(e.sender_id)]}')
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -39,11 +37,13 @@ async def start(e):
     if str(e.sender_id) in info and info[str(e.sender_id)].keys():
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
+    button.append('انشاء رسالة', data="creat_message", style=green, icon=5222040745665379997)
+    button.append('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
 message = {}
 async def return_names(ids):
     return await ABH.get_entity(list(ids))
-@ABH.on(events.CallbackQuery(pattern='(add|remove)_channel|channels'))
+@ABH.on(events.CallbackQuery(pattern='(add|remove)_channel|channels|create_message'))
 async def start_callback(e):
     data = e.data.decode('utf-8')
     id = str(e.sender_id)
@@ -60,6 +60,11 @@ async def start_callback(e):
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
         await e.edit('ارسل الان يوزر او ايدي القناة')
+    elif data == 'create_message':
+        id = e.sender_id
+        if id not in message:
+            message[id] = {'text': [], 'media': [], 'buttons': []}
+        await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e), edit=True)
     else:
         if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
         ids = list(int(id) for id in info.get(id).keys())
@@ -439,7 +444,7 @@ async def handle_yes_no(e):
         if not chat_info[user_key]:
             del chat_info[user_key]
         return await e.edit('تم الغاء اضافة القناة')
-commands = ['اضافة قناة', 'حذف قناة', 'انشاء رسالة', 'نشر رسالة', 'زر']
+commands = ['اضافة قناة', 'حذف قناة', 'القنوات', 'انشاء رسالة', 'نشر رسالة', 'زر']
 text = "\n".join(f'{n}- `{command}`' for n, command in enumerate(commands, start=1))
 @ABH.on(events.NewMessage(pattern=r'^الاوامر'))
 async def command(e):
