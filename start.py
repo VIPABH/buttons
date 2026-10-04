@@ -50,7 +50,7 @@ async def start_callback(e):
     data = e.data.decode('utf-8')
     id = str(e.sender_id)
     if data == 'channels':
-        if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة', buttons=back)
+        if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة', buttons=_back)
         text = 'قنواتك المضافة\n'
         ids = []
         for ch in info[id]:
@@ -111,18 +111,19 @@ async def create_message(e):
 @ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back)'))
 async def create_message_callback(e):
     data = e.data.decode('utf-8')
+    if data == 'back':
+        step = session.get('step')
+        if step:
+            del message[e.sender_id]['step']
+            await e.edit('تم الرجوع خطوة الى الخلف', buttons=buttons(e))
+        else:
+            await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     session = message.get(e.sender_id, None)
     if data == 'del_all':
         del message[e.sender_id]
         return await e.edit('تم حذف الجلسة')
-    if data == 'back':
-        step = session.get('step')
-        if step:
-            await e.edit('تم الرجوع خطوة الى الخلف', buttons=buttons(e))
-        else:
-            await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     if data == 'delete':
         text = session.get('text')
         media = session.get('media')
