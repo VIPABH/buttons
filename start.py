@@ -25,7 +25,7 @@ async def save_data():
     except Exception as e:
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
-back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148172425)]
+back = [Button.inline('الرجوع', data='back', style=red, icon=5354834116481143712)]
 _back = [Button.inline('أظهار الازرار', data='back', style=red, icon=5258130763148172425)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
@@ -33,14 +33,7 @@ async def is_user_check(e):
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
-    button = [
-        [Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213)]
-    ]
-    if str(e.sender_id) in info and info[str(e.sender_id)].keys():
-        button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
-        button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
-    button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
-    button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
+    button = gernal_button()
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
 message = {}
 async def return_names(ids):
@@ -105,6 +98,16 @@ def buttons(e):
     rows.append([
         Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
+def gernal_button():
+    button = [
+        [Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213)]
+    ]
+    if str(e.sender_id) in info and info[str(e.sender_id)].keys():
+        button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
+        button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
+    button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
+    button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
+    return button
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
