@@ -114,7 +114,7 @@ async def create_message_callback(e):
     session = message.get(e.sender_id, None)
     if data == 'back':
         step = session.get('step')
-        if step:
+        if session and step:
             del message[e.sender_id]['step']
             await e.edit('تم الرجوع خطوة الى الخلف', buttons=buttons(e))
         else:
