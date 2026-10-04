@@ -113,15 +113,14 @@ async def create_message_callback(e):
     data = e.data.decode('utf-8')
     session = message.get(e.sender_id, None)
     if data == 'back':
-        b = buttons(e)
         if session:
             step = session.get('step')
             if step:
                 del message[e.sender_id]['step']
-                return await e.edit('تم الرجوع خطوة الى الخلف', buttons=b)
+                return await e.edit('تم الرجوع خطوة الى الخلف', buttons=buttons(e))
             else:
-                return await e.edit('اختار من الازرار عزيزي', buttons=b)
-        return await e.edit('اختار من الازرار عزيزي', buttons=b)
+                return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
+        return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     if data == 'del_all':
@@ -130,16 +129,16 @@ async def create_message_callback(e):
     if data == 'delete':
         text = session.get('text')
         media = session.get('media')
-        buttons = session.get('buttons')
-        if not text and not media and not buttons:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
+        row_buttons = session.get('buttons')
+        if not text and not media and not row_buttons:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
         button = []
         if text:
             button.append(Button.inline('تعديل النص', data='edit_text', style=red, icon=5229113891081956317))
         if media:
             button.append(Button.inline('تعديل الميديا', data='edit_media', style=red, icon=5229113891081956317))
-        if buttons:
+        if row_buttons:
             button.append(Button.inline('تعديل الازرار', data='edit_buttons', style=red, icon=5229113891081956317))
-        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(buttons)}` )', buttons=button)
+        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(row_buttons)}` )', buttons=button)
     if data.startswith('set_'):
         data = data.replace('set_', '')
         message[e.sender_id]['step'] = data
