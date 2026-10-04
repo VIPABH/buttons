@@ -76,6 +76,9 @@ async def start_callback(e):
         await e.edit('اختر قناة لحذفها', buttons=button)
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
 def buttons(e):
+    id = e.sender_id
+    if id not in message:
+        message[id] = {'text': [], 'media': [], 'buttons': []}
     session = message.get(e.sender_id) or {}
     text = session.get('text') or []
     media = session.get('media') or []
