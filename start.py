@@ -111,6 +111,7 @@ async def create_message(e):
 @ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back)'))
 async def create_message_callback(e):
     data = e.data.decode('utf-8')
+    session = message.get(e.sender_id, None)
     if data == 'back':
         step = session.get('step')
         if step:
@@ -120,7 +121,6 @@ async def create_message_callback(e):
             await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
-    session = message.get(e.sender_id, None)
     if data == 'del_all':
         del message[e.sender_id]
         return await e.edit('تم حذف الجلسة')
