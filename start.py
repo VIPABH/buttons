@@ -78,7 +78,7 @@ arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الم�
 def buttons(e):
     id = e.sender_id
     if id not in message:
-        message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': False}
+        message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
     session = message.get(e.sender_id) or {}
     text = session.get('text') or []
     media = session.get('media') or []
@@ -114,7 +114,7 @@ def buttons(e):
 async def create_message(e):
     id = e.sender_id
     if id not in message:
-        message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': False}
+        message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back)'))
 async def create_message_callback(e):
