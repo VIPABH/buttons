@@ -239,7 +239,8 @@ async def _send(e, chat=None):
         else:
             formatted_buttons.append(Button.url(name, url, style=coloer))
     if row_poll:
-        formatted_buttons.append([Button.inline(row_poll[0], data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(row_poll[1], data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)])
+        name1, name2 = row_poll
+        formatted_buttons.append([Button.inline(name1, data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(name2, data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)])
     buttons_to_send = formatted_buttons if formatted_buttons else None
     try:
         if raw_media:
