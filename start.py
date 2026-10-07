@@ -239,7 +239,7 @@ async def _send(e, chat=None):
         else:
             formatted_buttons.append(Button.url(name, url, style=coloer))
     if row_poll:
-        name1, name2 = row_poll
+        name1, name2 = row_poll[0]
         formatted_buttons.append([Button.inline(name1, data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(name2, data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)])
     buttons_to_send = formatted_buttons if formatted_buttons else None
     try:
@@ -435,7 +435,7 @@ async def small_filter(e):
         return await e.reply('تم اضافة نص الزر الاول\nارسل نص الزر الثاني')
     elif step == 's_poll_name':
         if len(text) > 5:return await e.reply('لازم يكون النص اقل من 5 احرف')
-        message[e.sender_id]['poll'].append((message[e.sender_id]['f_poll_name'], text))
+        message[e.sender_id]['poll'].append(message[e.sender_id]['f_poll_name'], text)
         del message[e.sender_id]['step']
         await _send(e)
         return await e.reply('تم اضافة نص الزر الثاني', buttons=buttons(e))
