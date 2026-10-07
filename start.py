@@ -25,7 +25,7 @@ async def save_data():
     except Exception as e:
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
-back = [Button.inline('الرجوع', data='back', style=red, icon=5354834116481143712)]
+back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148172425)]
 _back = [Button.inline('أظهار الازرار', data='back', style=red, icon=5258130763148172425)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
@@ -33,7 +33,14 @@ async def is_user_check(e):
     await small_filter(e)
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
-    button = gernal_button()
+    button = [
+        [Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213)]
+    ]
+    if str(e.sender_id) in info and info[str(e.sender_id)].keys():
+        button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
+        button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
+    button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
+    button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
 message = {}
 async def return_names(ids):
@@ -58,7 +65,7 @@ async def start_callback(e):
     elif data == 'create_message':
         id = e.sender_id
         if id not in message:
-            message[id] = {'text': [], 'media': [], 'buttons': []}
+            message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': False}
         await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e), edit=True)
     else:
         if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
@@ -67,16 +74,16 @@ async def start_callback(e):
         row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}", style=red, icon=5258130763148172425) for ch in chats]
         button = chunk_list(row_button, 2)
         await e.edit('اختر قناة لحذفها', buttons=button)
-arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول'}
+arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول', 'poll': "تم تفعيل الاستفتاء"}
 def buttons(e):
     id = e.sender_id
     if id not in message:
-        message[id] = {'text': [], 'media': [], 'buttons': []}
+        message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': False}
     session = message.get(e.sender_id) or {}
     text = session.get('text') or []
     media = session.get('media') or []
     button = session.get('buttons') or []
-    rows = []
+    rows = []   
     Type = session.get('type')
     if Type in not_allowed:
         if Type == 'الستيكرات':
@@ -90,7 +97,8 @@ def buttons(e):
             Button.inline('إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),])
     if len(media) <= 1:
         rows.append([
-            Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)])
+            Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue),
+            Button.inline('إضافة تصويت', data='set_poll', icon=5280993797482750213, style=green if button else blue)])
     if any(session.values()):
         rows.append([
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
@@ -98,21 +106,11 @@ def buttons(e):
     rows.append([
         Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
-def gernal_button():
-    button = [
-        [Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213)]
-    ]
-    if str(e.sender_id) in info and info[str(e.sender_id)].keys():
-        button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
-        button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
-    button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
-    button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
-    return button
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
 async def create_message(e):
     id = e.sender_id
     if id not in message:
-        message[id] = {'text': [], 'media': [], 'buttons': []}
+        message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': False}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back)'))
 async def create_message_callback(e):
@@ -200,6 +198,11 @@ async def callback_handler(e, data):
                 back[0]]
             buttons_to_send.append(b)
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
+    elif data == 'poll':
+        if session.get('poll'):
+            return await e.edit('التصويت مفعل من قبل')
+        session['poll'] = True
+        return await e.edit('تم تفعيل التصويت')
 translate = {"media": 'الميديا', 'buttons': 'الزر'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
 async def handle_buttons_and_media(e):
