@@ -65,7 +65,7 @@ async def start_callback(e):
     elif data == 'create_message':
         id = e.sender_id
         if id not in message:
-            message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': False}
+            message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
         await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e), edit=True)
     else:
         if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
@@ -74,7 +74,7 @@ async def start_callback(e):
         row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}", style=red, icon=5258130763148172425) for ch in chats]
         button = chunk_list(row_button, 2)
         await e.edit('اختر قناة لحذفها', buttons=button)
-arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول', 'poll': "تم تفعيل الاستفتاء"}
+arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول', 'poll': "ارسل الان نص (اقل من 5 احرف)"}
 def buttons(e):
     id = e.sender_id
     if id not in message:
@@ -96,9 +96,13 @@ def buttons(e):
             Button.inline('إضافة نص', data='set_text', icon=5280993797482750213, style=green if text else blue),
             Button.inline('إضافة ميديا', data='set_media', icon=5280993797482750213, style=green if media else blue),])
     if len(media) <= 1:
-        rows.append([
-            Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue),
-            Button.inline('إضافة تصويت', data='set_poll', icon=5280993797482750213, style=green if button else blue)])
+        if not session.get('icon'):
+            rows.append([
+                Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue),
+                Button.inline('إضافة تصويت', data='set_poll', icon=5280993797482750213, style=green if button else blue)])
+        else:
+            rows.append([
+                Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)])
     if any(session.values()):
         rows.append([
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
@@ -198,11 +202,6 @@ async def callback_handler(e, data):
                 back[0]]
             buttons_to_send.append(b)
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
-    elif data == 'poll':
-        if session.get('poll'):
-            return await e.edit('التصويت مفعل من قبل')
-        session['poll'] = True
-        return await e.edit('تم تفعيل التصويت')
 translate = {"media": 'الميديا', 'buttons': 'الزر'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
 async def handle_buttons_and_media(e):
@@ -225,6 +224,7 @@ async def _send(e, chat=None):
     text = ' \n '.join(row_text)
     raw_media = session.get('media', [])
     raw_buttons = session.get('buttons', [])
+    row_poll = session.get('poll', [])
     formatted_buttons = []
     for item in raw_buttons:
         icon = None
@@ -238,6 +238,8 @@ async def _send(e, chat=None):
             formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
         else:
             formatted_buttons.append(Button.url(name, url, style=coloer))
+    if row_poll:
+        formatted_buttons.append([Button.inline(row_poll[0], data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(row_poll[1], data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)])
     buttons_to_send = formatted_buttons if formatted_buttons else None
     try:
         if raw_media:
@@ -425,6 +427,17 @@ async def small_filter(e):
         if photo_file:
             return await e.reply(caption, file=photo_file, buttons=confirm_buttons)
         return await e.reply(caption, buttons=confirm_buttons)
+    elif step == 'poll':
+        if len(text) > 5:return await e.reply('لازم يكون النص اقل من 5 احرف')
+        message[e.sender_id]['f_poll_name'] = text
+        message[e.sender_id]['step'] = 's_poll_name'
+        return await e.reply('تم اضافة نص الزر الاول\nارسل نص الزر الثاني')
+    elif step == 's_poll_name':
+        if len(text) > 5:return await e.reply('لازم يكون النص اقل من 5 احرف')
+        message[e.sender_id]['poll'].append((message[e.sender_id]['f_poll_name'], text))
+        del message[e.sender_id]['step']
+        await _send(e)
+        return await e.reply('تم اضافة نص الزر الثاني', buttons=buttons(e))
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post):(-?\d+)$'))
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
