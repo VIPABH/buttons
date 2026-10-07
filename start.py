@@ -435,7 +435,7 @@ async def small_filter(e):
         return await e.reply('تم اضافة نص الزر الاول\nارسل نص الزر الثاني')
     elif step == 's_poll_name':
         if len(text) > 5:return await e.reply('لازم يكون النص اقل من 5 احرف')
-        message[e.sender_id]['poll'].append(message[e.sender_id]['f_poll_name'], text)
+        message[e.sender_id]['poll'].append((message[e.sender_id]['f_poll_name'], text))
         del message[e.sender_id]['step']
         await _send(e)
         return await e.reply('تم اضافة نص الزر الثاني', buttons=buttons(e))
