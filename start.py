@@ -280,19 +280,21 @@ async def _send(e, chat=None):
                 await sent_msg.edit(buttons=formatted_buttons)
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
-@ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):(\d+):(\d+)$'))
+@ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):([^:]+):([^:]+)$'))
 async def poll_callBack(e):
-    row_action = str(e.pattern_match.group(1))
-    action = 'agree' if row_action == 'poll_agree' else 'disagree'
-    original_sender_id = str(int(e.pattern_match.group(2)))
-    original_message_id = str(int(e.pattern_match.group(3)))
+    raw_match = e.pattern_match.group(1)
+    if isinstance(raw_match, bytes):
+        raw_match = raw_match.decode('utf-8')    
+    is_agree = 'agree' in raw_match
+    original_sender_id = str(e.pattern_match.group(2))
+    original_message_id = str(e.pattern_match.group(3))
     voter_id = e.sender_id
     if original_sender_id not in polldb or original_message_id not in polldb[original_sender_id]:
         return await e.answer('عذراً، هذا الاستطلاع غير متوفر أو قديم ⚠️', alert=True)
     poll_data = polldb[original_sender_id][original_message_id]
     name1, name2 = poll_data['names']    
-    selected_option = name1 if action == 'agree' else name2
-    other_option = name2 if action == 'agree' else name1
+    selected_option = name1 if is_agree else name2
+    other_option = name2 if is_agree else name1
     if voter_id in poll_data['options'][selected_option]:
         poll_data['options'][selected_option].remove(voter_id)
         msg = f"تم إلغاء تصويتك لـ {selected_option} 🗑️"
@@ -302,7 +304,7 @@ async def poll_callBack(e):
         msg = f"تم تغيير تصويتك إلى {selected_option} 🔄"
     else:
         poll_data['options'][selected_option].append(voter_id)
-        msg = "تم تسجيل موافقتك ✅" if action == 'agree' else "تم تسجيل رفضك ❌"
+        msg = "تم تسجيل موافقتك ✅" if is_agree else "تم تسجيل رفضك ❌"
     save_db(polldb)
     count1 = len(poll_data['options'][name1])
     count2 = len(poll_data['options'][name2])
