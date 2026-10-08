@@ -276,7 +276,7 @@ def save_db(data):
         json.dump(data, f, ensure_ascii=False, indent=4)
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):(\d+):(\d+)$'))
 async def poll_callBack(e):
-    row_action = e.pattern_match.group(1)
+    row_action = str(e.pattern_match.group(1))
     action = row_action.replace('poll_', '')
     action_num = 0 if action == 'agree' else 1
     original_sender_id = str(e.pattern_match.group(2))
