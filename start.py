@@ -283,7 +283,7 @@ async def _send(e, chat=None):
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):(\d+):(\d+)$'))
 async def poll_callBack(e):
     row_action = str(e.pattern_match.group(1))
-    action = row_action.replace('poll_', '')
+    action = 'agree' if row_action == 'poll_agree' else 'disagree'
     original_sender_id = str(int(e.pattern_match.group(2)))
     original_message_id = str(int(e.pattern_match.group(3)))
     voter_id = e.sender_id
