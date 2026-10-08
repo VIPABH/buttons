@@ -292,19 +292,25 @@ async def poll_callBack(e):
     poll_data = polldb[original_sender_id][original_message_id]
     name1, name2 = poll_data['names']    
     selected_option = name1 if action == 'agree' else name2
-    has_voted = any(voter_id in poll_data['options'][opt] for opt in poll_data['names'])
-    if has_voted:
-        return await e.answer('تم تسجيل تصويتك من قبل ⚠️', alert=True)
-    poll_data['options'][selected_option].append(voter_id)
+    other_option = name2 if action == 'agree' else name1
+    if voter_id in poll_data['options'][selected_option]:
+        poll_data['options'][selected_option].remove(voter_id)
+        msg = f"تم إلغاء تصويتك لـ {selected_option} 🗑️"
+    elif voter_id in poll_data['options'][other_option]:
+        poll_data['options'][other_option].remove(voter_id)
+        poll_data['options'][selected_option].append(voter_id)
+        msg = f"تم تغيير تصويتك إلى {selected_option} 🔄"
+    else:
+        poll_data['options'][selected_option].append(voter_id)
+        msg = "تم تسجيل موافقتك ✅" if action == 'agree' else "تم تسجيل رفضك ❌"
     save_db(polldb)
     count1 = len(poll_data['options'][name1])
     count2 = len(poll_data['options'][name2])
-    msg = "تم تسجيل موافقتك ✅" if action == 'agree' else "تم تسجيل رفضك ❌"    
     new_buttons = [
         Button.inline(f'{name1} ( {count1} )', data=f'poll_agree:{original_sender_id}:{original_message_id}', style=green, icon=5449683594425410231),
         Button.inline(f'{name2} ( {count2} )', data=f'poll_disagree:{original_sender_id}:{original_message_id}', style=red, icon=5447183459602669338)
     ]
-    await e.answer(msg, alert=False)    
+    await e.answer(msg, alert=False)
     try:
         await e.edit(buttons=new_buttons)
     except Exception:
