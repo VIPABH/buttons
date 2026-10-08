@@ -83,7 +83,7 @@ def buttons(e):
     text = session.get('text') or []
     media = session.get('media') or []
     button = session.get('buttons') or []
-    rows = []   
+    rows = []
     Type = session.get('type')
     if Type in not_allowed:
         if Type == 'الستيكرات':
@@ -215,6 +215,7 @@ async def handle_buttons_and_media(e):
     else:
         del message[e.sender_id]['buttons'][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
+polldb = create(DB_FILE)
 async def _send(e, chat=None):
     user_id = e.sender_id    
     if user_id not in message:return
@@ -241,6 +242,7 @@ async def _send(e, chat=None):
     if row_poll:
         name1, name2 = row_poll[0]
         formatted_buttons.append([Button.inline(name1, data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(name2, data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)])
+        polldb.setdefault(original_sender_id, {}).setdefault(e.id, {name1: [], name2: [], "names": (name1, name2)})
     buttons_to_send = formatted_buttons if formatted_buttons else None
     try:
         if raw_media:
@@ -269,6 +271,27 @@ async def _send(e, chat=None):
             await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
+def save_db(data):
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+@ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):(\d+):(\d+)$'))
+async def poll_callBack(e):
+    row_action = e.pattern_match.group(1)
+    action = row_action.replace('poll_', '')
+    action_num = 0 if action == 'agree' else 1
+    original_sender_id = str(e.pattern_match.group(2))
+    original_message_id = str(e.pattern_match.group(3))
+    voter_id = str(e.sender_id)
+    poll_data = polldb[original_sender_id][original_message_id]
+    if voter_id in poll_data[action_num]:
+        return await e.answer('تم تسجيل تصويتك من قبل ⚠️', alert=True)
+    poll_data[action_num].append(voter_id)
+    save_db(polldb)
+    msg = "تم تسجيل موافقتك ✅" if action_num == 0 else "تم تسجيل رفضك ❌"
+    name1, name2 = poll_data['names']
+    b = [Button.inline(f'{name1} ( {len(poll_data[0])} )', data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(f'{name2} ( {len(poll_data[1])} )', data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)]
+    await e.answer(msg, alert=False)
+    await e.edit(buttons=b)
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
 async def small_filter(e):
