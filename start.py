@@ -279,8 +279,8 @@ async def poll_callBack(e):
     row_action = str(e.pattern_match.group(1))
     action = row_action.replace('poll_', '')
     action_num = 0 if action == 'agree' else 1
-    original_sender_id = str(e.pattern_match.group(2))
-    original_message_id = str(e.pattern_match.group(3))
+    original_sender_id = str(int(e.pattern_match.group(2)))
+    original_message_id = str(int(e.pattern_match.group(3)))
     voter_id = str(e.sender_id)
     poll_data = polldb[original_sender_id][original_message_id]
     if voter_id in poll_data[action_num]:
