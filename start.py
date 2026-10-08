@@ -215,10 +215,15 @@ async def handle_buttons_and_media(e):
     else:
         del message[e.sender_id]['buttons'][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
+DB_FILE = 'poll.json'
+def save_db(data):
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
 polldb = create('poll.json')
 async def _send(e, chat=None):
     user_id = e.sender_id    
-    if user_id not in message:return
+    if user_id not in message:
+        return
     chat_id = chat if chat else e.chat_id
     session = message[user_id]
     row_text = session.get('text') or ["BY - @itsButtonBot"]
@@ -228,22 +233,21 @@ async def _send(e, chat=None):
     row_poll = session.get('poll', [])
     formatted_buttons = []
     for item in raw_buttons:
-        icon = None
-        style = None
-        coloer = None
         if len(item) == 4:
             name, url, coloer, icon = item
-        else:
-            name, url = item
-        if icon:
             formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
         else:
+            name, url = item
             formatted_buttons.append(Button.url(name, url, style=coloer))
+    name1, name2 = None, None
     if row_poll:
         name1, name2 = row_poll[0]
-        formatted_buttons.append([Button.inline(name1, data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(name2, data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)])
-        polldb.setdefault(str(user_id), {}).setdefault(str(e.id), {name1: [], name2: [], "names": (name1, name2)})
+        formatted_buttons.append([
+            Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:0', style=green, icon=5449683594425410231),
+            Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:0', style=red, icon=5447183459602669338)
+        ])
     buttons_to_send = formatted_buttons if formatted_buttons else None
+    sent_msg = None
     try:
         if raw_media:
             processed_media = []
@@ -252,46 +256,59 @@ async def _send(e, chat=None):
                 if item is not None:
                     processed_media.append(item)
             if not processed_media:
-                await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
-                return
-            if len(processed_media) == 1:
-                await ABH.send_file(
-                    chat_id,
-                    file=processed_media[0],
-                    caption=text,
-                    buttons=buttons_to_send)
+                sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
+            elif len(processed_media) == 1:
+                sent_msg = await ABH.send_file(chat_id, file=processed_media[0], caption=text, buttons=buttons_to_send)
             else:
-                await ABH.send_file(
-                    chat_id,
-                    file=processed_media,
-                    caption=text,
-                    buttons=buttons_to_send
-                )
+                sent_msg = await ABH.send_file(chat_id, file=processed_media, caption=text, buttons=buttons_to_send)
         else:
-            await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
+            sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
+        if row_poll and sent_msg:
+            real_msg_id = str(sent_msg.id)
+            user_id_str = str(user_id)
+            polldb.setdefault(user_id_str, {})[real_msg_id] = {
+                "options": {name1: [], name2: []},
+                "names": [name1, name2]
+            }
+            save_db(polldb)
+            updated_poll_buttons = [
+                Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
+                Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
+            ]
+            if formatted_buttons:
+                formatted_buttons[-1] = updated_poll_buttons
+                await sent_msg.edit(buttons=formatted_buttons)
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
-def save_db(data):
-    with open(DB_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):(\d+):(\d+)$'))
 async def poll_callBack(e):
     row_action = str(e.pattern_match.group(1))
     action = row_action.replace('poll_', '')
-    action_num = 0 if action == 'agree' else 1
     original_sender_id = str(int(e.pattern_match.group(2)))
     original_message_id = str(int(e.pattern_match.group(3)))
-    voter_id = str(e.sender_id)
+    voter_id = e.sender_id
+    if original_sender_id not in polldb or original_message_id not in polldb[original_sender_id]:
+        return await e.answer('عذراً، هذا الاستطلاع غير متوفر أو قديم ⚠️', alert=True)
     poll_data = polldb[original_sender_id][original_message_id]
-    if voter_id in poll_data[action_num]:
+    name1, name2 = poll_data['names']    
+    selected_option = name1 if action == 'agree' else name2
+    has_voted = any(voter_id in poll_data['options'][opt] for opt in poll_data['names'])
+    if has_voted:
         return await e.answer('تم تسجيل تصويتك من قبل ⚠️', alert=True)
-    poll_data[action_num].append(voter_id)
+    poll_data['options'][selected_option].append(voter_id)
     save_db(polldb)
-    msg = "تم تسجيل موافقتك ✅" if action_num == 0 else "تم تسجيل رفضك ❌"
-    name1, name2 = poll_data['names']
-    b = [Button.inline(f'{name1} ( {len(poll_data[0])} )', data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(f'{name2} ( {len(poll_data[1])} )', data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)]
-    await e.answer(msg, alert=False)
-    await e.edit(buttons=b)
+    count1 = len(poll_data['options'][name1])
+    count2 = len(poll_data['options'][name2])
+    msg = "تم تسجيل موافقتك ✅" if action == 'agree' else "تم تسجيل رفضك ❌"    
+    new_buttons = [
+        Button.inline(f'{name1} ( {count1} )', data=f'poll_agree:{original_sender_id}:{original_message_id}', style=green, icon=5449683594425410231),
+        Button.inline(f'{name2} ( {count2} )', data=f'poll_disagree:{original_sender_id}:{original_message_id}', style=red, icon=5447183459602669338)
+    ]
+    await e.answer(msg, alert=False)    
+    try:
+        await e.edit(buttons=new_buttons)
+    except Exception:
+        pass
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
 async def small_filter(e):
