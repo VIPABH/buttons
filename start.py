@@ -242,7 +242,7 @@ async def _send(e, chat=None):
     if row_poll:
         name1, name2 = row_poll[0]
         formatted_buttons.append([Button.inline(name1, data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(name2, data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)])
-        polldb.setdefault(original_sender_id, {}).setdefault(e.id, {name1: [], name2: [], "names": (name1, name2)})
+        polldb.setdefault(user_id, {}).setdefault(e.id, {name1: [], name2: [], "names": (name1, name2)})
     buttons_to_send = formatted_buttons if formatted_buttons else None
     try:
         if raw_media:
