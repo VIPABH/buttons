@@ -138,7 +138,8 @@ async def create_message_callback(e):
         text = session.get('text')
         media = session.get('media')
         row_buttons = session.get('buttons')
-        if not text and not media and not row_buttons:return await e.reply('بعدك ما ضفت شيء حته تحذف ')
+        row_poll = session.get('poll')
+        if any(session.values()):return await e.reply('بعدك ما ضفت شيء حته تحذف ')
         button = []
         if text:
             button.append(Button.inline('تعديل النص', data='edit_text', style=red, icon=5229113891081956317))
@@ -146,7 +147,9 @@ async def create_message_callback(e):
             button.append(Button.inline('تعديل الميديا', data='edit_media', style=red, icon=5229113891081956317))
         if row_buttons:
             button.append(Button.inline('تعديل الازرار', data='edit_buttons', style=red, icon=5229113891081956317))
-        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(row_buttons)}` )', buttons=button)
+        if row_poll:
+            button.append(Button.inline('تعديل التصويت', data='edit_poll', style=red, icon=5229113891081956317))
+        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(row_buttons)}` ) \n حالة التصويت ( {"مفعل" if row_poll else 'معطل'} )', buttons=button)
     if data.startswith('set_'):
         data = data.replace('set_', '')
         message[e.sender_id]['step'] = data
@@ -202,6 +205,10 @@ async def callback_handler(e, data):
                 back[0]]
             buttons_to_send.append(b)
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
+    elif data == 'poll':
+        if not session.get('poll'):return await e.edit('التصويت معطل من قبل!')
+        del session['poll']
+        return await e.edit('تم تعطيل التصويت')
 translate = {"media": 'الميديا', 'buttons': 'الزر'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
 async def handle_buttons_and_media(e):
@@ -238,7 +245,7 @@ async def _send(e, chat=None):
             formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
         else:
             name, url = item
-            formatted_buttons.append(Button.url(name, url, style=coloer))
+            formatted_buttons.append(Button.url(name, url))
     name1, name2 = None, None
     if row_poll:
         name1, name2 = row_poll[0]
@@ -252,7 +259,7 @@ async def _send(e, chat=None):
         if raw_media:
             processed_media = []
             for m in raw_media:
-                item = await get_input_media(m) if callable(get_input_media) else m
+                item = await get_input_media(m)
                 if item is not None:
                     processed_media.append(item)
             if not processed_media:
@@ -272,8 +279,8 @@ async def _send(e, chat=None):
             }
             save_db()
             updated_poll_buttons = [
-                Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
-                Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
+                Button.inline(name1, data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
+                Button.inline(name2, data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
             ]
             if formatted_buttons:
                 formatted_buttons[-1] = updated_poll_buttons
@@ -282,6 +289,7 @@ async def _send(e, chat=None):
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):([^:]+):([^:]+)$'))
 async def poll_callBack(e):
+    if e.is_private:return await e.answer('تكدر تستخدم الامر بعد ما تنشره')
     row_data = e.data.decode('utf-8')
     data = row_data.split(':')[0]
     sender_id = str(int(e.pattern_match.group(2)))
