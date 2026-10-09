@@ -270,7 +270,7 @@ async def _send(e, chat=None):
                 "options": {name1: [], name2: []},
                 "names": [name1, name2]
             }
-            save_db(polldb)
+            save_db()
             updated_poll_buttons = [
                 Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
                 Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
