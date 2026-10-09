@@ -294,17 +294,17 @@ async def poll_callBack(e):
     id = e.sender_id
     if num == 0:
         if id in a_db:
-            del a_db[id]
+            a_db.remove(id)
             return await e.answer('تم حذف تصويتك')
         else:
             a_db.append(id)
             return await e.answer('تم اضافة تصويتك')
     else:
-        if id in a_db:
-            del a_db[id]
+        if id in b_db:
+            b_db.remove(id)
             return await e.answer('تم حذف تصويتك(لا)')
         else:
-            a_db.append(id)
+            b_db.append(id)
             return await e.answer('تم اضافة تصويتك(لا)')
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
