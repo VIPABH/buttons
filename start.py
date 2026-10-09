@@ -307,7 +307,7 @@ async def poll_callBack(e):
         else:
             b_db.append(id)
             return await e.answer('تم اضافة تصويتك(لا)')
-    b = [Button.inline(f'{name1} ( {len(poll_data[0])} )', data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(f'{name2} ( {len(poll_data[1])} )', data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)]
+    b = [Button.inline(f'{name1} ( {len(a_db)} )', data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(f'{name2} ( {len(b_db)} )', data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)]
     await e.edit(buttons=b)
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
