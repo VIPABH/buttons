@@ -282,8 +282,8 @@ async def _send(e, chat=None):
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):([^:]+):([^:]+)$'))
 async def poll_callBack(e):
-    data = e.data.decode('utf-8')
-    print(data)
+    row_data = e.data.decode('utf-8')
+    data = row_data.split(':')[0]
     sender_id = str(int(e.pattern_match.group(2)))
     message_id = str(int(e.pattern_match.group(3)))
     num = 0 if data == 'poll_agree' else 1
