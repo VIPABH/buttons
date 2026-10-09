@@ -286,8 +286,8 @@ async def poll_callBack(e):
     if isinstance(raw_match, bytes):
         raw_match = raw_match.decode('utf-8')    
     is_agree = 'agree' in raw_match
-    original_sender_id = str(e.pattern_match.group(2))
-    original_message_id = str(e.pattern_match.group(3))
+    original_sender_id = str(int(e.pattern_match.group(2)))
+    original_message_id = str(int(e.pattern_match.group(3)))
     voter_id = e.sender_id
     if original_sender_id not in polldb or original_message_id not in polldb[original_sender_id]:
         return await e.answer('عذراً، هذا الاستطلاع غير متوفر أو قديم ⚠️', alert=True)
