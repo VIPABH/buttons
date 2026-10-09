@@ -248,7 +248,7 @@ async def _send(e, chat=None):
             name, url = item
             unchanked.append(Button.url(name, url))
     b = chunk_list(unchanked, 2)
-    formatted_buttons.append(list(b))
+    formatted_buttons.append(b)
     name1, name2 = None, None
     if row_poll:
         name1, name2 = row_poll[0]
