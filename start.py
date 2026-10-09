@@ -83,6 +83,7 @@ def buttons(e):
     text = session.get('text') or []
     media = session.get('media') or []
     button = session.get('buttons') or []
+    poll = session.get('poll') or []
     rows = []
     Type = session.get('type')
     if Type in not_allowed:
