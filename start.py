@@ -149,7 +149,7 @@ async def create_message_callback(e):
         if row_buttons:
             button.append(Button.inline('تعديل الازرار', data='edit_buttons', style=red, icon=5229113891081956317))
         if row_poll:
-            button.append(Button.inline('تعديل التصويت', data='edit_poll', style=red, icon=5229113891081956317))
+            button.append(Button.inline('حذف التصويت', data='edit_poll', style=red, icon=5408832111773757273))
         return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(row_buttons)}` ) \n حالة التصويت ( {"مفعل" if row_poll else 'معطل'} )', buttons=button)
     if data.startswith('set_'):
         data = data.replace('set_', '')
