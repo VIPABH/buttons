@@ -289,8 +289,8 @@ async def poll_callBack(e):
     if sender_id not in polldb or message_id not in polldb[sender_id]:return await e.answer('التصويت غير مسجل!')
     db = polldb[sender_id][message_id]
     name1, name2 = db['names']
-    a_db = db['names'][name1]
-    b_db = db['names'][name2]
+    a_db = db['names'][0]
+    b_db = db['names'][1]
     id = e.sender_id
     if num == 0:
         if id in a_db:
