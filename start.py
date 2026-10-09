@@ -140,7 +140,7 @@ async def create_message_callback(e):
         media = session.get('media')
         row_buttons = session.get('buttons')
         row_poll = session.get('poll')
-        if any(session.values()):return await e.reply('بعدك ما ضفت شيء حته تحذف ')
+        if not any(session.values()):return await e.reply('بعدك ما ضفت شيء حته تحذف ')
         button = []
         if text:
             button.append(Button.inline('تعديل النص', data='edit_text', style=red, icon=5229113891081956317))
