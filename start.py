@@ -287,27 +287,39 @@ async def poll_callBack(e):
     sender_id = str(int(e.pattern_match.group(2)))
     message_id = str(int(e.pattern_match.group(3)))
     num = 0 if data == 'poll_agree' else 1
-    if sender_id not in polldb or message_id not in polldb[sender_id]:return await e.answer('التصويت غير مسجل!')
+    if sender_id not in polldb or message_id not in polldb[sender_id]:
+        return await e.answer('التصويت غير مسجل!')
     db = polldb[sender_id][message_id]
     name1, name2 = db['names']
     a_db = db['options'][name1]
     b_db = db['options'][name2]
-    id = e.sender_id
+    user_id = e.sender_id
+    msg_text = ""
     if num == 0:
-        if id in a_db:
-            a_db.remove(id)
-            return await e.answer('تم حذف تصويتك')
+        if user_id in a_db:
+            a_db.remove(user_id)
+            msg_text = 'تم حذف تصويتك'
         else:
-            a_db.append(id)
-            return await e.answer('تم اضافة تصويتك')
+            if user_id in b_db:
+                b_db.remove(user_id)
+            a_db.append(user_id)
+            msg_text = 'تم إضافة تصويتك'
     else:
-        if id in b_db:
-            b_db.remove(id)
-            return await e.answer('تم حذف تصويتك(لا)')
+        if user_id in b_db:
+            b_db.remove(user_id)
+            msg_text = 'تم حذف تصويتك (لا)'
         else:
-            b_db.append(id)
-            return await e.answer('تم اضافة تصويتك(لا)')
-    b = [Button.inline(f'{name1} ( {len(a_db)} )', data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(f'{name2} ( {len(b_db)} )', data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)]
+            if user_id in a_db:
+                a_db.remove(user_id)
+            b_db.append(user_id)
+            msg_text = 'تم إضافة تصويتك (لا)'
+    await e.answer(msg_text)
+    b = [
+        [
+            Button.inline(f'{name1} ( {len(a_db)} )', data=f'poll_agree:{sender_id}:{message_id}'),
+            Button.inline(f'{name2} ( {len(b_db)} )', data=f'poll_disagree:{sender_id}:{message_id}')
+        ]
+    ]
     await e.edit(buttons=b)
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
