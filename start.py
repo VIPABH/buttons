@@ -284,9 +284,11 @@ async def _send(e, chat=None):
 async def poll_callBack(e):
     row_data = e.data.decode('utf-8')
     data = row_data.split(':')[0]
+    print(data)
     sender_id = str(int(e.pattern_match.group(2)))
     message_id = str(int(e.pattern_match.group(3)))
     num = 0 if data == 'poll_agree' else 1
+    print(num)
     if sender_id not in polldb or message_id not in polldb[sender_id]:return await e.answer('التصويت غير مسجل!')
     db = polldb[sender_id][message_id]
     name1, name2 = db['names']
