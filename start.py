@@ -282,41 +282,30 @@ async def _send(e, chat=None):
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):([^:]+):([^:]+)$'))
 async def poll_callBack(e):
-    raw_match = e.pattern_match.group(1)
-    if isinstance(raw_match, bytes):
-        raw_match = raw_match.decode('utf-8')    
-    is_agree = 'agree' in raw_match
-    original_sender_id = str(int(e.pattern_match.group(2)))
-    original_message_id = str(int(e.pattern_match.group(3)))
-    voter_id = e.sender_id
-    if original_sender_id not in polldb or original_message_id not in polldb[original_sender_id]:
-        return await e.answer('عذراً، هذا الاستطلاع غير متوفر أو قديم ⚠️', alert=True)
-    poll_data = polldb[original_sender_id][original_message_id]
-    name1, name2 = poll_data['names']    
-    selected_option = name1 if is_agree else name2
-    other_option = name2 if is_agree else name1
-    if voter_id in poll_data['options'][selected_option]:
-        poll_data['options'][selected_option].remove(voter_id)
-        msg = f"تم إلغاء تصويتك لـ {selected_option} 🗑️"
-    elif voter_id in poll_data['options'][other_option]:
-        poll_data['options'][other_option].remove(voter_id)
-        poll_data['options'][selected_option].append(voter_id)
-        msg = f"تم تغيير تصويتك إلى {selected_option} 🔄"
+    data = e.data.decode('utf-8')
+    sender_id = str(int(e.pattern_match.group(2)))
+    message_id = str(int(e.pattern_match.group(3)))
+    num = 0 if data == 'poll_agree' else 1
+    if sender_id not in polldb or message_id not in polldb[sender_id]:return await e.answer('التصويت غير مسجل!')
+    db = polldb[sender_id][message_id]
+    name1, name2 = db['names']
+    a_db = db['names'][name1]
+    b_db = db['names'][name2]
+    id = e.sender_id
+    if num == 0:
+        if id in a_db:
+            del a_db[id]
+            return await e.answer('تم حذف تصويتك')
+        else:
+            a_db.append(id)
+            return await e.answer('تم اضافة تصويتك')
     else:
-        poll_data['options'][selected_option].append(voter_id)
-        msg = "تم تسجيل موافقتك ✅" if is_agree else "تم تسجيل رفضك ❌"
-    save_db(polldb)
-    count1 = len(poll_data['options'][name1])
-    count2 = len(poll_data['options'][name2])
-    new_buttons = [
-        Button.inline(f'{name1} ( {count1} )', data=f'poll_agree:{original_sender_id}:{original_message_id}', style=green, icon=5449683594425410231),
-        Button.inline(f'{name2} ( {count2} )', data=f'poll_disagree:{original_sender_id}:{original_message_id}', style=red, icon=5447183459602669338)
-    ]
-    await e.answer(msg, alert=False)
-    try:
-        await e.edit(buttons=new_buttons)
-    except Exception:
-        pass
+        if id in a_db:
+            del a_db[id]
+            return await e.answer('تم حذف تصويتك(لا)')
+        else:
+            a_db.append(id)
+            return await e.answer('تم اضافة تصويتك(لا)')
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
 async def small_filter(e):
