@@ -239,14 +239,15 @@ async def _send(e, chat=None):
     raw_buttons = session.get('buttons', [])
     row_poll = session.get('poll', [])
     formatted_buttons = []
+    unchanked = []
     for item in raw_buttons:
         if len(item) == 4:
             name, url, coloer, icon = item
-            formatted_buttons.append(Button.url(name, url, style=coloer, icon=icon))
+            unchanked.append(Button.url(name, url, style=coloer, icon=icon))
         else:
             name, url = item
-            formatted_buttons.append(Button.url(name, url))
-    b = chunk_list(formatted_buttons, 2)
+            unchanked.append(Button.url(name, url))
+    b = chunk_list(unchanked, 2)
     formatted_buttons.append(b)
     name1, name2 = None, None
     if row_poll:
