@@ -292,6 +292,7 @@ async def poll_callBack(e):
     a_db = db['options'][name1]
     b_db = db['options'][name2]
     id = e.sender_id
+    print(num)
     if num == 0:
         if id in a_db:
             a_db.remove(id)
