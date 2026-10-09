@@ -298,28 +298,24 @@ async def poll_callBack(e):
     if num == 0:
         if user_id in a_db:
             a_db.remove(user_id)
-            msg_text = 'تم حذف تصويتك'
+            msg_text = f'تم حذف تصويتك ( {name1} )'
         else:
             if user_id in b_db:
                 b_db.remove(user_id)
             a_db.append(user_id)
-            msg_text = 'تم إضافة تصويتك'
+            msg_text = f'تم إضافة تصويتك ( {name1} )'
     else:
         if user_id in b_db:
             b_db.remove(user_id)
-            msg_text = 'تم حذف تصويتك (لا)'
+            msg_text = f'تم حذف تصويتك ( {name2} )'
         else:
             if user_id in a_db:
                 a_db.remove(user_id)
             b_db.append(user_id)
-            msg_text = 'تم إضافة تصويتك (لا)'
+            msg_text = f'تم إضافة تصويتك ( {name2} )'
     await e.answer(msg_text)
-    b = [
-        [
-            Button.inline(f'{name1} ( {len(a_db)} )', data=f'poll_agree:{sender_id}:{message_id}'),
-            Button.inline(f'{name2} ( {len(b_db)} )', data=f'poll_disagree:{sender_id}:{message_id}')
-        ]
-    ]
+    b = [[Button.inline(f'{name1} ( {len(a_db)} )', data=f'poll_agree:{sender_id}:{message_id}', style=green, icon=5449683594425410231),
+         Button.inline(f'{name2} ( {len(b_db)} )', data=f'poll_disagree:{sender_id}:{message_id}', style=red, icon=5447183459602669338)]]
     await e.edit(buttons=b)
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
