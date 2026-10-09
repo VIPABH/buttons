@@ -239,24 +239,20 @@ async def _send(e, chat=None):
     raw_buttons = session.get('buttons', [])
     row_poll = session.get('poll', [])
     formatted_buttons = []
-    unchanked = []
     for item in raw_buttons:
         if len(item) == 4:
             name, url, coloer, icon = item
-            unchanked.append(Button.url(name, url, style=coloer, icon=icon))
+            formatted_buttons.append([Button.url(name, url, style=coloer, icon=icon)])
         else:
             name, url = item
-            unchanked.append(Button.url(name, url))
-    b = chunk_list(unchanked, 2)
-    formatted_buttons.append(b)
+            formatted_buttons.append([Button.url(name, url)])
     name1, name2 = None, None
     if row_poll:
         name1, name2 = row_poll[0]
         formatted_buttons.append([
-            Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:0', style=green, icon=5449683594425410231),
-            Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:0', style=red, icon=5447183459602669338)
+            Button.inline(name1, data=f'poll_agree:{user_id}:0', style=green, icon=5449683594425410231),
+            Button.inline(name2, data=f'poll_disagree:{user_id}:0', style=red, icon=5447183459602669338)
         ])
-    print(formatted_buttons)
     buttons_to_send = formatted_buttons if formatted_buttons else None
     sent_msg = None
     try:
@@ -271,7 +267,9 @@ async def _send(e, chat=None):
             elif len(processed_media) == 1:
                 sent_msg = await ABH.send_file(chat_id, file=processed_media[0], caption=text, buttons=buttons_to_send)
             else:
-                sent_msg = await ABH.send_file(chat_id, file=processed_media, caption=text, buttons=buttons_to_send)
+                sent_msg = await ABH.send_file(chat_id, file=processed_media, caption=text)
+                if buttons_to_send:
+                    sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
         else:
             sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
         if row_poll and sent_msg:
@@ -283,8 +281,8 @@ async def _send(e, chat=None):
             }
             save_db()
             updated_poll_buttons = [
-                Button.inline(name1, data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
-                Button.inline(name2, data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
+                Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
+                Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
             ]
             if formatted_buttons:
                 formatted_buttons[-1] = updated_poll_buttons
