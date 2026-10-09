@@ -283,6 +283,7 @@ async def _send(e, chat=None):
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):([^:]+):([^:]+)$'))
 async def poll_callBack(e):
     data = e.data.decode('utf-8')
+    print(data)
     sender_id = str(int(e.pattern_match.group(2)))
     message_id = str(int(e.pattern_match.group(3)))
     num = 0 if data == 'poll_agree' else 1
@@ -292,7 +293,6 @@ async def poll_callBack(e):
     a_db = db['options'][name1]
     b_db = db['options'][name2]
     id = e.sender_id
-    print(num)
     if num == 0:
         if id in a_db:
             a_db.remove(id)
