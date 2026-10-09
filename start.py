@@ -99,7 +99,7 @@ def buttons(e):
         if not session.get('icon'):
             rows.append([
                 Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue),
-                Button.inline('إضافة تصويت', data='set_poll', icon=5280993797482750213, style=green if button else blue)])
+                Button.inline('إضافة تصويت', data='set_poll', icon=5280993797482750213, style=green if poll else blue)])
         else:
             rows.append([
                 Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)])
@@ -116,7 +116,7 @@ async def create_message(e):
     if id not in message:
         message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
-@ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back)'))
+@ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back|delete)'))
 async def create_message_callback(e):
     data = e.data.decode('utf-8')
     session = message.get(e.sender_id, None)
@@ -281,8 +281,8 @@ async def _send(e, chat=None):
             }
             save_db()
             updated_poll_buttons = [
-                Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
-                Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
+                Button.inline(name1, data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
+                Button.inline(name2, data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
             ]
             if formatted_buttons:
                 formatted_buttons[-1] = updated_poll_buttons
