@@ -248,7 +248,7 @@ async def _send(e, chat=None):
             name, url = item
             unchanked.append(Button.url(name, url))
     b = chunk_list(unchanked, 2)
-    formatted_buttons.append(b)
+    formatted_buttons.append(list(b))
     name1, name2 = None, None
     if row_poll:
         name1, name2 = row_poll[0]
@@ -256,6 +256,7 @@ async def _send(e, chat=None):
             Button.inline(f'{name1} ( 0 )', data=f'poll_agree:{user_id}:0', style=green, icon=5449683594425410231),
             Button.inline(f'{name2} ( 0 )', data=f'poll_disagree:{user_id}:0', style=red, icon=5447183459602669338)
         ])
+    print(formatted_buttons)
     buttons_to_send = formatted_buttons if formatted_buttons else None
     sent_msg = None
     try:
