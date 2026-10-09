@@ -216,9 +216,9 @@ async def handle_buttons_and_media(e):
         del message[e.sender_id]['buttons'][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
-def save_db(data):
+def save_db():
     with open(DB_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+        json.dump(polldb, f, ensure_ascii=False, indent=4)
 polldb = create('poll.json')
 async def _send(e, chat=None):
     user_id = e.sender_id    
@@ -316,6 +316,7 @@ async def poll_callBack(e):
     await e.answer(msg_text)
     b = [[Button.inline(f'{name1} ( {len(a_db)} )', data=f'poll_agree:{sender_id}:{message_id}', style=green, icon=5449683594425410231),
          Button.inline(f'{name2} ( {len(b_db)} )', data=f'poll_disagree:{sender_id}:{message_id}', style=red, icon=5447183459602669338)]]
+    save_db()
     await e.edit(buttons=b)
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
