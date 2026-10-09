@@ -284,11 +284,9 @@ async def _send(e, chat=None):
 async def poll_callBack(e):
     row_data = e.data.decode('utf-8')
     data = row_data.split(':')[0]
-    print(data)
     sender_id = str(int(e.pattern_match.group(2)))
     message_id = str(int(e.pattern_match.group(3)))
     num = 0 if data == 'poll_agree' else 1
-    print(num)
     if sender_id not in polldb or message_id not in polldb[sender_id]:return await e.answer('التصويت غير مسجل!')
     db = polldb[sender_id][message_id]
     name1, name2 = db['names']
@@ -309,6 +307,8 @@ async def poll_callBack(e):
         else:
             b_db.append(id)
             return await e.answer('تم اضافة تصويتك(لا)')
+    b = [Button.inline(f'{name1} ( {len(poll_data[0])} )', data=f'poll_agree:{e.sender_id}:{e.id}', style=green, icon=5449683594425410231), Button.inline(f'{name2} ( {len(poll_data[1])} )', data=f'poll_disagree:{e.sender_id}:{e.id}', style=red, icon=5447183459602669338)]
+    await e.edit(buttons=b)
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
 async def small_filter(e):
