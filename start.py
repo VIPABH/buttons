@@ -216,14 +216,14 @@ translate = {"media": 'الميديا', 'buttons': 'الزر'}
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
-    action_type, action_name, num = re.split(r'[_:]', e.data.decode('utf-8'))
+    action_name, action_type, num = re.split(r'[_:]', e.data.decode('utf-8'))
     print(action_name, action_type, num)
     if action_name == 'change':
-        message.setdefault(e.sender_id, {})['step'] = action_type
-        del message[e.sender_id][action_type][int(num)]
-        await e.edit(f'ارسل الان {translate[action_type]}', buttons=back)
+        message.setdefault(e.sender_id, {})['step'] = action_name
+        del message[e.sender_id][action_name][int(num)]
+        await e.edit(f'ارسل الان {translate[action_name]}', buttons=back)
     else:
-        del message[e.sender_id][action_type][int(num)]
+        del message[e.sender_id][action_name][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
 def save_db():
