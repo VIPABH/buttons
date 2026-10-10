@@ -171,16 +171,16 @@ async def callback_handler(e, data):
         await e.edit('اضغط على ازرار النص للتخصيص', buttons=back)
         for num, item in enumerate(text, start=0):
             b = [
-                Button.inline('تغيير النص', data=f'text_change:{num}', style=blue, icon=5264727218734524899),
-                Button.inline('حذف النص', data=f'text_delete:{num}', style=blue, icon=5465665476971471368)]
+                Button.inline('تغيير النص', data=f'text_change:{num}:{len(message[e.sender_id]['text'])}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف النص', data=f'text_delete:{num}:{len(message[e.sender_id]['text'])}', style=blue, icon=5465665476971471368)]
             await e.reply(item, buttons=b)
     elif data == 'media':
         media = session.get('media')
         await e.edit('اضغط على ازرار الفيديو للتخصيص', buttons=back)
         for num, item in enumerate(media, start=0):
             b = [
-                Button.inline('تغيير الفيديو', data=f'media_change:{num}', style=blue, icon=5264727218734524899),
-                Button.inline('حذف الفيديو', data=f'media_delete:{num}', style=blue, icon=5465665476971471368)]
+                Button.inline('تغيير الفيديو', data=f'media_change:{num}:{len(message[e.sender_id]['media'])}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف الفيديو', data=f'media_delete:{num}:{len(message[e.sender_id]['media'])}', style=blue, icon=5465665476971471368)]
             m = await get_input_media(item)
             await ABH.send_file(e.chat_id, file=m, buttons=b)
     elif data == 'buttons':
@@ -201,8 +201,8 @@ async def callback_handler(e, data):
                 formatted_buttons.append([Button.url(name, url, style=coloer)])
             buttons_to_send = formatted_buttons if formatted_buttons else None
             b = [
-                Button.inline('تعديل الزر', data=f'buttons_change:{num}', style=blue, icon=5264727218734524899),
-                Button.inline('حذف الزر', data=f'buttons_delete:{num}', style=blue, icon=5465665476971471368),
+                Button.inline('تعديل الزر', data=f'buttons_change:{num}:{len(message[e.sender_id]['buttons'])}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف الزر', data=f'buttons_delete:{num}:{len(message[e.sender_id]['buttons'])}', style=blue, icon=5465665476971471368),
                 back[0]]
             buttons_to_send.append(b)
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
@@ -211,11 +211,12 @@ async def callback_handler(e, data):
         session['poll'] = []
         return await e.edit('تم تعطيل التصويت')
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
-@ABH.on(events.CallbackQuery(pattern=r'^(media|buttons|text)_(change|delete):(\d+)$'))
+@ABH.on(events.CallbackQuery(pattern=r'^(media|buttons|text)_(change|delete):(\d+):(\d+)$'))
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
-    action_name, action_type, num = re.split(r'[_:]', e.data.decode('utf-8'))
+    action_name, action_type, num, num2 = re.split(r'[_:]', e.data.decode('utf-8'))
+    if num != num2:return await e.edit(f'لضمان الدقة , عيد جلسة {'الحذف' if action_name == 'delete' else 'التعديل'} 🌚')
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][int(num)]
