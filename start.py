@@ -113,8 +113,8 @@ def buttons(e):
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red)])
         rows.append([
             Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue)])
-    rows.append([
-        Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
+        rows.append([
+            Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
 async def create_message(e):
@@ -246,9 +246,11 @@ async def _send(e, chat=None):
     if user_id not in message:
         return
     chat_id = chat if chat else e.chat_id
+    if any(session.values()):
+        return None
     session = message[user_id]
     row_text = session.get('text') or ["BY - @itsButtonBot"]
-    text = ' \n '.join(row_text)
+    text = '\n'.join(row_text)
     raw_media = session.get('media', [])
     raw_buttons = session.get('buttons', [])
     row_poll = session.get('poll', [])
@@ -272,8 +274,7 @@ async def _send(e, chat=None):
         formatted_buttons.append(updated_poll_buttons)
         polldb.setdefault(str(user_id), {})[str(e.id)] = {
             "options": {name1: [], name2: []},
-            "names": [name1, name2]
-                }
+            "names": [name1, name2]}
         save_db()
     buttons_to_send = formatted_buttons if formatted_buttons else None
     try:
@@ -286,13 +287,14 @@ async def _send(e, chat=None):
             if not processed_media:
                 sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
             elif len(processed_media) == 1:
-                await ABH.send_file(chat_id, file=processed_media[0], caption=text, buttons=buttons_to_send)
+                sent_msg = await ABH.send_file(chat_id, file=processed_media[0], caption=text, buttons=buttons_to_send)
             else:
-                await ABH.send_file(chat_id, file=processed_media, caption=text)
+                sent_msg = await ABH.send_file(chat_id, file=processed_media, caption=text)
                 if buttons_to_send:
-                    await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
+                    sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
         else:
-            await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
+            sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
+        return sent_msg 
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):([^:]+):([^:]+)$'))
