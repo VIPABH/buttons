@@ -8,6 +8,7 @@ from telethon.tl.types import (
     DocumentAttributeVideo, DocumentAttributeAnimated,
     MessageMediaPoll, MessageExtendedMedia,)
 from telethon.tl.types import MessageEntityCustomEmoji
+from num2words import num2words
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import re, asyncio, os, json
@@ -169,12 +170,21 @@ async def callback_handler(e, data):
     if data == 'text':
         row_text = session.get('text')
         formated_text = [f'{n}- `{text}`' for n, text in enumerate(row_text, start=1)]
-        text == f'''
+        text = f'''
 اختر من النصوص الاتية
 {'\n'.join(formated_text)}
 يرجى ارسال رقم النص لتعديله
         '''
+        message[e.sender_id]['step'] = 'num'
         await e.edit(text, buttons=back)
+    elif data == 'text':
+        text = session.get('text')
+        await e.edit('اضغط على ازرار النص للتخصيص', buttons=back)
+        for num, item in enumerate(text, start=0):
+            b = [
+                Button.inline('تغيير النص', data=f'text_change:{num}', style=blue, icon=5264727218734524899),
+                Button.inline('حذف النص', data=f'text_delete:{num}', style=blue, icon=5465665476971471368)]
+            await e.reply(e.chat_id, file=m, buttons=b)
     elif data == 'media':
         media = session.get('media')
         await e.edit('اضغط على ازرار الفيديو للتخصيص', buttons=back)
@@ -211,8 +221,8 @@ async def callback_handler(e, data):
         if not session.get('poll'):return await e.edit('التصويت معطل من قبل!')
         session['poll'] = []
         return await e.edit('تم تعطيل التصويت')
-translate = {"media": 'الميديا', 'buttons': 'الزر'}
-@ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
+translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
+@ABH.on(events.CallbackQuery(pattern=r'^(media|buttons|text)_(change|delete):(\d+)$'))
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
