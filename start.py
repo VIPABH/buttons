@@ -106,8 +106,9 @@ def buttons(e):
                 Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)])
     if any(session.values()):
         rows.append([
-            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-            Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue),])
+            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red)])
+        rows.append([
+            Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue)])
     rows.append([
         Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
@@ -323,6 +324,7 @@ async def poll_callBack(e):
     await e.edit(buttons=b)
 allowed = ['الصور', 'الفيديوهات']
 chat_info = {}
+processed_groups = set()
 async def small_filter(e):
     user_key = str(e.sender_id)
     session = message.get(e.sender_id) or {}
