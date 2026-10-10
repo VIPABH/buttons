@@ -107,7 +107,7 @@ def buttons(e):
     if any(session.values()):
         rows.append([
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
-            Button.inline('حذف معين', data='delete', icon=5229113891081956317, style=red),])
+            Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue),])
     rows.append([
         Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
@@ -150,7 +150,7 @@ async def create_message_callback(e):
             button.append(Button.inline('تعديل الازرار', data='edit_buttons', style=red, icon=5229113891081956317))
         if row_poll:
             button.append(Button.inline('حذف التصويت', data='edit_poll', style=red, icon=5408832111773757273))
-        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(row_buttons)}` ) \n حالة التصويت ( {"مفعل" if row_poll else 'معطل'} )', buttons=button)
+        return await e.reply(f'اختر ما تريد حذفه \n عدد النصوص ( `{len(text)}` )\n عدد الميديا ( `{len(media)}` )\n عدد الأزرار ( `{len(row_buttons)}` ) \n حالة التصويت ( {"شغال" if row_poll else 'معطل'} )', buttons=button)
     if data.startswith('set_'):
         data = data.replace('set_', '')
         message[e.sender_id]['step'] = data
@@ -161,19 +161,19 @@ async def create_message_callback(e):
     if data == 'done':
         ids = [int(id) for id in info[str(e.sender_id)]]
         chats = await return_names(ids)
-        b = [Button.inline(chat.title, data=f'post:{chat.id}') for chat in chats]
-        await e.edit("اختار قناة للنشر فيها", buttons=b)
+        b = [Button.inline(chat.title, data=f'post:{chat.id}', style=blue, icon=5305355874187880345) for chat in chats]
+        await e.edit("اختار قناة للنشر فيها", buttons=chunk_list(b, 2))
 async def callback_handler(e, data):
     session = message.get(e.sender_id)
     if data == 'text':
         row_text = session.get('text')
         formated_text = [f'{n}- `{text}`' for n, text in enumerate(row_text, start=1)]
-        caption == f'''
+        text == f'''
 اختر من النصوص الاتية
 {'\n'.join(formated_text)}
 يرجى ارسال رقم النص لتعديله
         '''
-        await e.edit(caption, buttons=back)
+        await e.edit(text, buttons=back)
     elif data == 'media':
         media = session.get('media')
         await e.edit('اضغط على ازرار الفيديو للتخصيص', buttons=back)
@@ -208,7 +208,7 @@ async def callback_handler(e, data):
             await e.respond(f"**معلومات الزر**\n نص الزر ( {name} )\n الرابط ( {url} )\n لون الزر ( {coloer if coloer else 'شفاف'} )\n الأيقونة ( {icon if icon else 'بدون أيقونة'} )", buttons=formatted_buttons)
     elif data == 'poll':
         if not session.get('poll'):return await e.edit('التصويت معطل من قبل!')
-        del session['poll']
+        session['poll'] = []
         return await e.edit('تم تعطيل التصويت')
 translate = {"media": 'الميديا', 'buttons': 'الزر'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons)_(change|delete):(\d+)$'))
@@ -252,10 +252,17 @@ async def _send(e, chat=None):
         name1, name2 = row_poll[0]
         formatted_buttons.append([
             Button.inline(name1, data=f'poll_agree:{user_id}:0', style=green, icon=5449683594425410231),
-            Button.inline(name2, data=f'poll_disagree:{user_id}:0', style=red, icon=5447183459602669338)
-        ])
+            Button.inline(name2, data=f'poll_disagree:{user_id}:0', style=red, icon=5447183459602669338)])
+        updated_poll_buttons = [
+        Button.inline(name1, data=f'poll_agree:{user_id}:{e.id}', style=green, icon=5449683594425410231),
+        Button.inline(name2, data=f'poll_disagree:{user_id}:{e.id}', style=red, icon=5447183459602669338),]
+        formatted_buttons.append(updated_poll_buttons)
+        polldb.setdefault(str(user_id), {})[str(e.id)] = {
+            "options": {name1: [], name2: []},
+            "names": [name1, name2]
+                }
+        save_db()
     buttons_to_send = formatted_buttons if formatted_buttons else None
-    sent_msg = None
     try:
         if raw_media:
             processed_media = []
@@ -266,28 +273,13 @@ async def _send(e, chat=None):
             if not processed_media:
                 sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
             elif len(processed_media) == 1:
-                sent_msg = await ABH.send_file(chat_id, file=processed_media[0], caption=text, buttons=buttons_to_send)
+                await ABH.send_file(chat_id, file=processed_media[0], caption=text, buttons=buttons_to_send)
             else:
-                sent_msg = await ABH.send_file(chat_id, file=processed_media, caption=text)
+                await ABH.send_file(chat_id, file=processed_media, caption=text)
                 if buttons_to_send:
-                    sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
+                    await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
         else:
-            sent_msg = await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
-        if row_poll and sent_msg:
-            real_msg_id = str(sent_msg.id)
-            user_id_str = str(user_id)
-            polldb.setdefault(user_id_str, {})[real_msg_id] = {
-                "options": {name1: [], name2: []},
-                "names": [name1, name2]
-            }
-            save_db()
-            updated_poll_buttons = [
-                Button.inline(name1, data=f'poll_agree:{user_id}:{real_msg_id}', style=green, icon=5449683594425410231),
-                Button.inline(name2, data=f'poll_disagree:{user_id}:{real_msg_id}', style=red, icon=5447183459602669338)
-            ]
-            if formatted_buttons:
-                formatted_buttons[-1] = updated_poll_buttons
-                await sent_msg.edit(buttons=formatted_buttons)
+            await ABH.send_message(chat_id, message=text, buttons=buttons_to_send)
     except Exception as error:
         await hint(f'error in **_send** \n session ( {session} )\n error ( {error} )')
 @ABH.on(events.CallbackQuery(pattern=r'^(poll_agree|poll_disagree):([^:]+):([^:]+)$'))
