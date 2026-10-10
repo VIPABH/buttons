@@ -167,16 +167,6 @@ async def create_message_callback(e):
 async def callback_handler(e, data):
     session = message.get(e.sender_id)
     if data == 'text':
-        row_text = session.get('text')
-        formated_text = [f'{n}- `{text}`' for n, text in enumerate(row_text, start=1)]
-        text = f'''
-اختر من النصوص الاتية
-{'\n'.join(formated_text)}
-يرجى ارسال رقم النص لتعديله
-        '''
-        message[e.sender_id]['step'] = 'num'
-        await e.edit(text, buttons=back)
-    elif data == 'text':
         text = session.get('text')
         await e.edit('اضغط على ازرار النص للتخصيص', buttons=back)
         for num, item in enumerate(text, start=0):
