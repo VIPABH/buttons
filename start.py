@@ -219,7 +219,7 @@ async def handle_buttons_and_media(e):
     target_num = int(target_num)
     old_len = int(old_len)
     length = len(message[e.sender_id][action_name])
-    if length != old_len:return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
+    # if length != old_len:return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
     if action_type == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][target_num]
@@ -228,7 +228,6 @@ async def handle_buttons_and_media(e):
         if length != old_len:
             difference = old_len - length
             target_num = difference - num
-            print_all()
             if num < 0:
                 return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا')
         del message[e.sender_id][action_name][target_num]
