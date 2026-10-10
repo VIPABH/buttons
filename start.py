@@ -217,8 +217,7 @@ async def handle_buttons_and_media(e):
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     action_name, action_type, num, num2 = re.split(r'[_:]', e.data.decode('utf-8'))
     lnegth = len(message[e.sender_id][action_name])
-    print(lnegth, num2, lnegth != int(num2)-1, lnegth != int(num2))
-    if lnegth != int(num2)-1:return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
+    if lnegth != int(num2):return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][int(num)]
