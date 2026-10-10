@@ -247,7 +247,7 @@ async def _send(e, chat=None):
         return
     chat_id = chat if chat else e.chat_id
     session = message.get(user_id)
-    if any(session.values()):
+    if not any(session.values()):
         return None
     row_text = session.get('text') or ["BY - @itsButtonBot"]
     text = '\n'.join(row_text)
