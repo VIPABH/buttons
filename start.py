@@ -227,8 +227,8 @@ async def handle_buttons_and_media(e):
     else:
         if length != old_len:
             difference = old_len - length
-            target_num = difference - num
-            if num < 0:
+            target_num = difference - target_num
+            if target_num < 0:
                 return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا')
         del message[e.sender_id][action_name][target_num]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
