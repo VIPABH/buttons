@@ -227,6 +227,7 @@ async def handle_buttons_and_media(e):
     if action_type == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][target_num]
+        del message[e.sender_id]['type']
         await e.edit(f'ارسل الان {translate[action_name]}', buttons=back)
     else:
         if length != old_len:
@@ -235,6 +236,7 @@ async def handle_buttons_and_media(e):
             if target_num < 0:
                 return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا')
         del message[e.sender_id][action_name][target_num]
+        del message[e.sender_id]['type']
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
 def save_db():
@@ -361,7 +363,6 @@ async def small_filter(e):
                 if Type != old_type and Type not in allowed and old_type not in allowed:
                     del message[e.sender_id]['step']
                     return await e.reply('عذرا بس ماكدر ارسل نوعين مختلفات', buttons=back)
-            
             message.setdefault(e.sender_id, {}).setdefault('media', [])
             if len(message[e.sender_id]['media']) > 1 and Type in not_allowed:
                 del message[e.sender_id]['step']
