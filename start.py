@@ -173,7 +173,7 @@ async def callback_handler(e, data):
             b = [
                 Button.inline('تغيير النص', data=f'text_change:{num}', style=blue, icon=5264727218734524899),
                 Button.inline('حذف النص', data=f'text_delete:{num}', style=blue, icon=5465665476971471368)]
-            await e.reply(e.chat_id, file=m, buttons=b)
+            await e.reply(e.chat_id, buttons=b)
     elif data == 'media':
         media = session.get('media')
         await e.edit('اضغط على ازرار الفيديو للتخصيص', buttons=back)
