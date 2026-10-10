@@ -41,7 +41,7 @@ async def start(e):
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
     button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
     button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
-    await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط \n ارسل `الاوامر` او أختر من بين الازرار', buttons=button)
+    await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط', buttons=button)
 message = {}
 async def return_names(ids):
     return await ABH.get_entity(list(ids))
@@ -217,7 +217,6 @@ async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     action_name, action_type, num = re.split(r'[_:]', e.data.decode('utf-8'))
-    print(action_name, action_type, num)
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][int(num)]
@@ -530,14 +529,6 @@ async def handle_yes_no(e):
         if not chat_info[user_key]:
             del chat_info[user_key]
         return await e.edit('تم الغاء اضافة القناة', buttons=back)
-commands = ['اضافة قناة', 'حذف قناة', 'القنوات', 'انشاء رسالة', 'نشر رسالة', 'زر']
-text = "\n".join(f'{n}- `{command}`' for n, command in enumerate(commands, start=1))
-@ABH.on(events.NewMessage(pattern=r'^الاوامر'))
-async def command(e):
-    await e.reply(f'''
-    **اوامر البوت📖**
-{text}
-    ''')
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
           "اخضر": "success", "green": "success"}
