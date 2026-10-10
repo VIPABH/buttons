@@ -220,12 +220,12 @@ async def handle_buttons_and_media(e):
     if lnegth != int(num2):return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
-        del message[e.sender_id][action_name][int(num)]
+        del message[e.sender_id][action_type][int(num)]
         await e.edit(f'ارسل الان {translate[action_name]}', buttons=back)
     else:
         if lnegth > int(num):
             num = lnegth
-        del message[e.sender_id][action_name][int(num)]
+        del message[e.sender_id][action_type][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
 def save_db():
