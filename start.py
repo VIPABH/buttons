@@ -215,18 +215,23 @@ translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
-    action_name, action_type, num, num2 = re.split(r'[_:]', e.data.decode('utf-8'))
-    lnegth = len(message[e.sender_id][action_name])
-    print(lnegth, num2)
-    if lnegth != int(num2):return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
+    action_name, action_type, target_num, old_len = re.split(r'[_:]', e.data.decode('utf-8'))
+    target_num = int(target_num)
+    old_len = int(old_len)
+    length = len(message[e.sender_id][action_name])
+    if length != old_len:return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
     if action_type == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
-        del message[e.sender_id][action_name][int(num)]
+        del message[e.sender_id][action_name][target_num]
         await e.edit(f'ارسل الان {translate[action_name]}', buttons=back)
     else:
-        if lnegth > int(num):
-            num = lnegth
-        del message[e.sender_id][action_name][int(num)]
+        if length != old_len:
+            difference = old_len - length
+            target_num = difference - num
+            print_all()
+            if num < 0:
+                return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا')
+        del message[e.sender_id][action_name][target_num]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
 def save_db():
