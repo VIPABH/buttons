@@ -5,9 +5,9 @@ from telethon import TelegramClient, events, Button
 from telethon.errors import UserNotParticipantError
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
+import asyncio, json, inspect
 from telethon import types
 from client import *
-import asyncio, json
 wfffp = 1910015590
 channels = [
     'ANYMOUSupdate', 
@@ -181,3 +181,14 @@ async def send(e, text, buttons=None, id=None, edit=None):
     return msg
 def chunk_list(lst, n):
     return [lst[i:i + n] for i in range(0, len(lst), n)]
+def lprint(*args, **kwargs):
+    formatted_args = [str(arg) for arg in args]
+    formatted_kwargs = [f"{key}={value}" for key, value in kwargs.items()]
+    all_items = formatted_args + formatted_kwargs
+    print(" , ".join(all_items))
+def print_all():
+  caller_frame = inspect.currentframe().f_back
+  func_name = caller_frame.f_code.co_name
+  caller_locals = caller_frame.f_locals
+  result = " , ".join(f"{k}={v}" for k, v in caller_locals.items())
+  print(f"متغيرات دالة ( {func_name} ): \n{result}")
