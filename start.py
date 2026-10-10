@@ -222,7 +222,7 @@ async def handle_buttons_and_media(e):
         del message[e.sender_id][action_type][int(num)]
         await e.edit(f'ارسل الان {translate[action_type]}', buttons=back)
     else:
-        del message[e.sender_id]['buttons'][int(num)]
+        del message[e.sender_id][action_type][int(num)]
         await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
 def save_db():
