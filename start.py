@@ -26,13 +26,12 @@ async def save_data():
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
 back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148172425)]
-_back = [Button.inline('أظهار الازرار', data='back', style=red, icon=5258130763148172425)]
+_back = [Button.inline('أظهار الازرار', data='_back', style=red, icon=5258130763148172425)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
     await small_filter(e)
-@ABH.on(events.NewMessage(pattern=r'^/start'))
-async def start(e):
+def start_button(e):
     button = [
         [Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213)]
     ]
@@ -41,11 +40,14 @@ async def start(e):
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
     button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
     button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
-    await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط', buttons=button)
+    return button
+@ABH.on(events.NewMessage(pattern=r'^/start'))
+async def start(e):
+    await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط', buttons=start_button(e))
 message = {}
 async def return_names(ids):
     return await ABH.get_entity(list(ids))
-@ABH.on(events.CallbackQuery(pattern='(add|remove)_channel|channels|create_message'))
+@ABH.on(events.CallbackQuery(pattern='(add|remove)_channel|channels|create_message|_back'))
 async def start_callback(e):
     data = e.data.decode('utf-8')
     id = str(e.sender_id)
@@ -58,7 +60,7 @@ async def start_callback(e):
         chats = await return_names(ids)
         row_names = [f'{num} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
-        return await e.edit(text, buttons=back)
+        return await e.edit(text, buttons=_back)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
         await e.edit('ارسل الان يوزر او ايدي القناة', buttons=back)
@@ -67,8 +69,10 @@ async def start_callback(e):
         if id not in message:
             message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
         await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e), edit=True)
+    elif data == '_back':
+        await e.edit('تفضل اختر من بين الازرار🌚', buttons=_back)
     else:
-        if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة')
+        if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة🌚', buttons=_back)
         ids = list(int(id) for id in info.get(id).keys())
         chats = await return_names(ids)
         row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}", style=red, icon=5258130763148172425) for ch in chats]
@@ -219,7 +223,7 @@ async def handle_buttons_and_media(e):
     target_num = int(target_num)
     old_len = int(old_len)
     length = len(message[e.sender_id][action_name])
-    # if length != old_len:return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
+    if length != old_len:return await e.edit(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
     if action_type == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][target_num]
