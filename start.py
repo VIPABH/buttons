@@ -8,7 +8,6 @@ from telethon.tl.types import (
     DocumentAttributeVideo, DocumentAttributeAnimated,
     MessageMediaPoll, MessageExtendedMedia,)
 from telethon.tl.types import MessageEntityCustomEmoji
-from num2words import num2words
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import re, asyncio, os, json
