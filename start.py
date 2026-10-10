@@ -70,7 +70,7 @@ async def start_callback(e):
             message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
         await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e), edit=True)
     elif data == '_back':
-        await e.edit('تفضل اختر من بين الازرار🌚', buttons=_back)
+        await e.edit('تفضل اختر من بين الازرار🌚', buttons=start_button(e))
     else:
         if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة🌚', buttons=_back)
         ids = list(int(id) for id in info.get(id).keys())
