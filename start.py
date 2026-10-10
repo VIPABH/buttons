@@ -215,15 +215,15 @@ translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص
 async def handle_buttons_and_media(e):
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
-    print(e.data.decode('utf-8'))
     action_name, action_type, num, num2 = re.split(r'[_:]', e.data.decode('utf-8'))
-    if len(message[e.sender_id][action_name]) != int(num2)-1:return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
+    lnegth = len(message[e.sender_id][action_name])
+    print(lnegth, num2, length != int(num2)-1, length != int(num2))
+    if length != int(num2)-1:return await e.reply(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
     if action_name == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][int(num)]
         await e.edit(f'ارسل الان {translate[action_name]}', buttons=back)
     else:
-        lnegth = len(message[e.sender_id][action_name])
         if lnegth > int(num):
             num = lnegth
         del message[e.sender_id][action_name][int(num)]
