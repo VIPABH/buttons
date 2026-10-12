@@ -238,7 +238,7 @@ async def handle_buttons_and_media(e):
                 return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا')
         del message[e.sender_id][action_name][target_num]
         del message[e.sender_id]['type']
-        await e.edit(f'تم ب نجاح حذف {translate[action_name]}', buttons=back)
+        await e.edit(f'تم بنجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
 def save_db():
     with open(DB_FILE, 'w', encoding='utf-8') as f:
@@ -441,20 +441,20 @@ async def small_filter(e):
         if raw.startswith('@') or raw.isdigit() or raw.startswith('https://'):
             target = raw
         else:
-            return await e.reply('عذرا الايدي او اليوزر غير صحيح', buttons=back)
+            return await e.reply('عذرا الايدي او اليوزر غير صحيح', buttons=_back)
         try:
             chat = await ABH.get_entity(target)
         except Exception:
-            return await e.reply('عذرا بس ماكدرت اوفر معلومات القناة هاي', buttons=back)
+            return await e.reply('عذرا بس ماكدرت اوفر معلومات القناة هاي', buttons=_back)
         if not chat:
-            return await e.reply('عذرا بس ماكو هيج قناة', buttons=back)
+            return await e.reply('عذرا بس ماكو هيج قناة', buttons=_back)
         if not isinstance(chat, Channel) or not chat.broadcast:
-            return await e.reply('صديقي اتفقنه تضيف قناة مو شيء اخر!', buttons=back)
+            return await e.reply('صديقي اتفقنه تضيف قناة مو شيء اخر!', buttons=_back)
         chan_key = str(chat.id)
         if not isinstance(info.get(user_key), dict):
             info[user_key] = {}
         if chan_key in info[user_key]:
-            return await e.reply('عذرا بس القناة هاي ضايفها انت من قبل', buttons=back)
+            return await e.reply('عذرا بس القناة هاي ضايفها انت من قبل', buttons=_back)
         try:
             bot_user = await ABH.get_me()
             participant = await ABH(GetParticipantRequest(
@@ -463,9 +463,9 @@ async def small_filter(e):
             ))
             is_admin = isinstance(participant.participant, ChannelParticipantAdmin)
             if not is_admin:
-                return await e.reply("البوت مو مشرف! ارفعه مشرف بالاول وعيد المحاولة", buttons=back)
+                return await e.reply("البوت مو مشرف! ارفعه مشرف بالاول وعيد المحاولة", buttons=_back)
         except UserNotParticipantError:
-            return await e.reply("❌ البوت غير موجود في القناة! يرجى إضافته ورفعه مشرفاً أولاً.", buttons=back)
+            return await e.reply("❌ البوت غير موجود في القناة! يرجى إضافته ورفعه مشرفاً أولاً.", buttons=_back)
         owner = await get_channel_owner(chat)
         photo_file = None
         if chat.photo:
@@ -519,32 +519,32 @@ async def handle_yes_no(e):
     if arg == 'yes':
         pending = chat_info.get(user_key, {}).get(chan_key)
         if not pending:
-            return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!", buttons=back)
+            return await e.edit("جلسة اضافة القناة حذفت, عيد المحاولة!", buttons=_back)
         if chan_key in info[user_key]:
             chat_info.get(user_key, {}).pop(chan_key, None)
-            return await e.edit('القناة مضافة من قبل', buttons=back)
+            return await e.edit('القناة مضافة من قبل', buttons=_back)
         info[user_key][chan_key] = pending
         await save_data()
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
-        await e.edit('تم اضافة القناة ب نجاح', buttons=back)
+        await e.edit('تم اضافة القناة ب نجاح', buttons=_back)
     elif arg == 'ok_delete_channle':
         info[user_key].pop(chan_key, None)
         await save_data()
-        return await e.edit('تم حذف القناة ب نجاح', buttons=back)
+        return await e.edit('تم حذف القناة ب نجاح', buttons=_back)
     elif arg == 'post':
         if not message.get(e.sender_id, None):
-            return await e.edit('ماعندك جلسة رسالة نشطة', buttons=back)
+            return await e.edit('ماعندك جلسة رسالة نشطة', buttons=_back)
         await _send(e, int(chan_key))
-        await e.edit('تم النشر ب نجاح', buttons=back)
+        await e.edit('تم النشر ب نجاح', buttons=_back)
     else:
         if chan_key not in chat_info.get(user_key, {}):
-            return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=back)
+            return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=_back)
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
-        return await e.edit('تم الغاء اضافة القناة', buttons=back)
+        return await e.edit('تم الغاء اضافة القناة', buttons=_back)
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
           "اخضر": "success", "green": "success"}
