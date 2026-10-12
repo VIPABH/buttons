@@ -521,7 +521,7 @@ async def small_filter(e):
     elif step == 'message_name':
         b = [Button.inline('احفظ', data='ok_save', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
         return await e.reply(f'هل تريد حفظ الرسالة ب اسم ( {text} )', buttons=b)
-@ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post|save_message):(-?\d+)$'))
+@ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post):(-?\d+)$'))
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
     chan_key = e.pattern_match.group(2).decode('utf-8')
@@ -557,13 +557,7 @@ async def handle_yes_no(e):
             return await e.edit('ماعندك جلسة رسالة نشطة', buttons=_back)
         await _send(e, int(chan_key))
         return await e.edit('تم النشر ب نجاح', buttons=_back)
-    elif data == 'save_message':
-        if not message.get(e.sender_id):
-            return await e.edit('ماعندك جلسة نشطة حاليا فماتكدر تحفظ رسالة', buttons=button(e))
-        message[e.sender_id]['step'] = 'message_name'
-        b = [Button.inline('احفظ', data='ok_save', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
-        return await e.edit(f'سيتم حفظ الرسالة ب رقم ( {e.id} ) \n او ارسل اسم مخصص', buttons=b)
-@ABH.on(events.CallbackQuery(pattern=b'^(ok_save|unsave_message)'))
+@ABH.on(events.CallbackQuery(pattern=b'^(ok_save|unsave_message|save_message)'))
 async def final_callback(e):
     data = e.data.decode('utf-8')
     if not message.get(e.sender_id):
@@ -571,7 +565,13 @@ async def final_callback(e):
     if data == 'unsave_message':
         del message[e.sender_id]['step']
         return await e.edit('تم تجاهل الحفظ')
-    if data.startswith('ok'):
+    elif data == 'save_message':
+        if not message.get(e.sender_id):
+            return await e.edit('ماعندك جلسة نشطة حاليا فماتكدر تحفظ رسالة', buttons=button(e))
+        message[e.sender_id]['step'] = 'message_name'
+        b = [Button.inline('احفظ', data='ok_save', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
+        return await e.edit(f'سيتم حفظ الرسالة ب رقم ( {e.id} ) \n او ارسل اسم مخصص', buttons=b)
+    elif data.startswith('ok'):
         if ':' in data:
             name = data.split(':')[1] 
         else:
