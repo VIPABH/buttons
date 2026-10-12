@@ -26,6 +26,15 @@ async def save_data():
     except Exception as e:
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
+msg = create('message.json')
+async def save_msg():
+    try:
+        with open('message.json', 'w', encoding='utf-8') as f:
+            json.dump(mgs, f, ensure_ascii=False, indent=4)
+        return True
+    except Exception as e:
+        await hint(f"خطأ أثناء حفظ البيانات: {e}")
+        return False
 back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148172425)]
 _back = [Button.inline('أظهار الازرار', data='_back', style=green, icon=5974047570249387560)]
 @ABH.on(events.NewMessage)
@@ -111,10 +120,10 @@ def buttons(e):
                 Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)])
     if any(session.values()):
         rows.append([
-            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red)])
-        rows.append([
+            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
             Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue)])
         rows.append([
+            Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
             Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
     return rows
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
@@ -509,7 +518,10 @@ async def small_filter(e):
         del message[e.sender_id]['step']
         await _send(e)
         return await e.reply('تم اضافة نص الزر الثاني', buttons=buttons(e))
-@ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post):(-?\d+)$'))
+    elif step == 'message_name':
+        b = [Button.inline('احفظ', data='ok_save', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
+        return await e.reply(f'هل تريد حفظ الرسالة ب اسم ( {text} )', buttons=b)
+@ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post|save_message):(-?\d+)$'))
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
     chan_key = e.pattern_match.group(2).decode('utf-8')
@@ -528,6 +540,13 @@ async def handle_yes_no(e):
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
+    elif data == 'no':
+        if chan_key not in chat_info.get(user_key, {}):
+            return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=_back)
+        chat_info[user_key].pop(chan_key, None)
+        if not chat_info[user_key]:
+            del chat_info[user_key]
+        return await e.edit('تم الغاء اضافة القناة', buttons=_back)
         await e.edit('تم اضافة القناة ب نجاح', buttons=_back)
     elif arg == 'ok_delete_channle':
         info[user_key].pop(chan_key, None)
@@ -537,14 +556,30 @@ async def handle_yes_no(e):
         if not message.get(e.sender_id, None):
             return await e.edit('ماعندك جلسة رسالة نشطة', buttons=_back)
         await _send(e, int(chan_key))
-        await e.edit('تم النشر ب نجاح', buttons=_back)
-    else:
-        if chan_key not in chat_info.get(user_key, {}):
-            return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=_back)
-        chat_info[user_key].pop(chan_key, None)
-        if not chat_info[user_key]:
-            del chat_info[user_key]
-        return await e.edit('تم الغاء اضافة القناة', buttons=_back)
+        return await e.edit('تم النشر ب نجاح', buttons=_back)
+    elif data == 'save_message':
+        if not message.get(e.sender_id):
+            return await e.edit('ماعندك جلسة نشطة حاليا فماتكدر تحفظ رسالة', buttons=button(e))
+        message[e.sender_id]['step'] = 'message_name'
+        b = [Button.inline('احفظ', data='ok_save', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
+        return await e.edit(f'سيتم حفظ الرسالة ب رقم ( {e.id} ) \n او ارسل اسم مخصص', buttons=b)
+@ABH.on(events.CallbackQuery(pattern=b'^(ok_save|unsave_message)'))
+async def final_callback(e):
+    data = e.data.decode('utf-8')
+    if not message.get(e.sender_id):
+        return await e.edit('الجلسة حذفت, عيد المحاولة')
+    if data == 'unsave_message':
+        del message[e.sender_id]['step']
+        return await e.edit('تم تجاهل الحفظ')
+    if data.startswith('ok'):
+        if ':' in data:
+            name = data.split(':')[1] 
+        else:
+            name = e.message.id
+        if e.sender_id not in msg:
+            msg[e.sender_id] = {}
+        msg[e.sender_id].update({name: message.get(e.sender_id)})
+    save_msg()
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
           "اخضر": "success", "green": "success"}
@@ -663,29 +698,29 @@ async def handler(event):
             await ABH.send_message(event.chat_id, f"تم إنشاء الأزرار بنجاح.{warning}")
     except Exception:
         return await event.reply("حدث خطأ أثناء إنشاء الرسالة والأزرار.")
-def get_message_type(msg: Message) -> str:
-    if msg is None:
+def get_message_type(_msg: Message) -> str:
+    if _msg is None:
         return
-    if isinstance(msg.media, MessageExtendedMediaPreview) or isinstance(msg.media, MessageExtendedMedia):
-        inner = msg.media.media
-        return get_message_type(Message(id=msg.id, media=inner))
-    if isinstance(msg.media, MessageMediaPhoto):
+    if isinstance(_msg.media, MessageExtendedMediaPreview) or isinstance(_msg.media, MessageExtendedMedia):
+        inner = _msg.media.media
+        return get_message_type(Message(id=_msg.id, media=inner))
+    if isinstance(_msg.media, MessageMediaPhoto):
         return "الصور" 
-    if isinstance(msg.media, MessageMediaDocument):
-        for attr in msg.media.document.attributes:
+    if isinstance(_msg.media, MessageMediaDocument):
+        for attr in _msg.media.document.attributes:
             if isinstance(attr, DocumentAttributeAnimated):
                 return "المتحركات"
-        for attr in msg.media.document.attributes:
+        for attr in _msg.media.document.attributes:
             if isinstance(attr, DocumentAttributeVideo):
                 if getattr(attr, "round_message", False):
                     return "الفويس نوت"
                 return "الفيديوهات"  
-        for attr in msg.media.document.attributes:
+        for attr in _msg.media.document.attributes:
             if isinstance(attr, DocumentAttributeSticker):
                 return "الستيكرات" 
             if isinstance(attr, DocumentAttributeAudio):
                 return "الفويسات" if getattr(attr, "voice", False) else "الصوتيات"
-        mime = msg.media.document.mime_type or ""
+        mime = _msg.media.document.mime_type or ""
         if mime.startswith("image/"):
             return "الصور" 
         elif mime.startswith("video/"):
