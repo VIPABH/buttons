@@ -580,7 +580,7 @@ async def final_callback(e):
             msg[e.sender_id] = {}
         msg[e.sender_id].update({name: message.get(e.sender_id)})
         save_msg()
-        b = [Button.inline('نعم', data=f'done'), back[0]]
+        b = [Button.inline('نعم', data=f'done', style=green, icon=5305355874187880345), back[0]]
         return await e.edit('تم حفظ الرسالة هل تريد نشرها؟', buttons=b)
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
