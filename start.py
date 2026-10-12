@@ -570,16 +570,18 @@ async def final_callback(e):
             return await e.edit('ماعندك جلسة نشطة حاليا فماتكدر تحفظ رسالة', buttons=button(e))
         message[e.sender_id]['step'] = 'message_name'
         b = [Button.inline('احفظ', data='ok_save', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
-        return await e.edit(f'سيتم حفظ الرسالة ب رقم ( {e.id} ) \n او ارسل اسم مخصص', buttons=b)
+        return await e.edit(f'سيتم حفظ الرسالة ب رقم ( {e.message_id} ) \n او ارسل اسم مخصص', buttons=b)
     elif data.startswith('ok'):
         if ':' in data:
             name = data.split(':')[1] 
         else:
-            name = e.message.id
+            name = e.message_id
         if e.sender_id not in msg:
             msg[e.sender_id] = {}
         msg[e.sender_id].update({name: message.get(e.sender_id)})
-    save_msg()
+        save_msg()
+        b = [Button.inline('نعم', data=f'done'), back[0]]
+        return await e.edit('تم حفظ الرسالة هل تريد نشرها؟', buttons=b)
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
           "اخضر": "success", "green": "success"}
