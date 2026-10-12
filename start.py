@@ -10,6 +10,7 @@ from telethon.tl.types import (
 from telethon.tl.types import MessageEntityCustomEmoji
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from num2words import num2words
 import re, asyncio, os, json
 from telethon import events
 from io import BytesIO
@@ -53,12 +54,12 @@ async def start_callback(e):
     id = str(e.sender_id)
     if data == 'channels':
         if not id in info:return await e.edit('عذرا بس انت ماعندك قنوات مضافة', buttons=_back)
-        text = 'قنواتك المضافة\n'
+        text = 'قنواتك المضافة🗒️:\n'
         ids = []
         for ch in info[id]:
             ids.append(int(ch))
         chats = await return_names(ids)
-        row_names = [f'{num} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
+        row_names = [f'{num2words(num, lang="ar", )} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
         return await e.edit(text, buttons=_back)
     elif data.startswith('add'):
