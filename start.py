@@ -27,7 +27,7 @@ async def save_data():
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
 back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148172425)]
-_back = [Button.inline('أظهار الازرار', data='_back', style=red, icon=5258130763148172425)]
+_back = [Button.inline('أظهار الازرار', data='_back', style=green, icon=5974047570249387560)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     await is_user(e)
@@ -59,7 +59,7 @@ async def start_callback(e):
         for ch in info[id]:
             ids.append(int(ch))
         chats = await return_names(ids)
-        row_names = [f'{num2words(num, lang="ar", )} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
+        row_names = [f'القناة {ordinal_arabic_female(num) or {num2words(num, lang="ar", )}} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
         return await e.edit(text, buttons=_back)
     elif data.startswith('add'):
