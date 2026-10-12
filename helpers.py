@@ -190,5 +190,42 @@ def print_all():
   caller_frame = inspect.currentframe().f_back
   func_name = caller_frame.f_code.co_name
   caller_locals = caller_frame.f_locals
-  result = " , ".join(f"{k}={v}" for k, v in caller_locals.items())
+  items = list(caller_locals.items())[1:]
+  formatted_items = []
+  for k, v in items:
+    if not isinstance(v, (str, int, float, bool, list, dict, set, tuple)):
+      continue
+    formatted_items.append(f"{k}={v}")
+  result = " , ".join(formatted_items)
   print(f"متغيرات دالة ( {func_name} ): \n{result}")
+def ordinal_arabic_female(n):
+    if not (1 <= n <= 100):
+        return None
+    ones = [
+        "", "الأولى", "الثانية", "الثالثة", "الرابعة", "الخامسة",
+        "السامة", "السابعة", "الثامنة", "التاسعة", "العاشرة"
+    ]    
+    tens = {
+        20: "العشرون", 30: "الثلاثون", 40: "الأربعون", 
+        50: "الخمسون", 60: "الستون", 70: "السبعون", 
+        80: "الثمانون", 90: "التسعون"
+    }
+    if n == 100:
+        return "المائة"
+    if n <= 10:
+        return ones[n]
+    if n in tens:
+        return tens[n]
+    if 11 <= n <= 19:
+        units_teen = [
+            "", "الحادية", "الثانية", "الثالثة", "الرابعة", 
+            "الخامسة", "السادسة", "السابعة", "الثامنة", "التاسعة"
+        ]
+        return f"{units_teen[n % 10]} عشرة"
+    units_compound = [
+        "", "الحادية", "الثانية", "الثالثة", "الرابعة", 
+        "الخامسة", "السادسة", "السابعة", "الثامنة", "التاسعة"
+    ]    
+    ten_part = (n // 10) * 10
+    one_part = n % 10
+    return f"{units_compound[one_part]} و{tens[ten_part]}"
