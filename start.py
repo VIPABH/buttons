@@ -540,7 +540,7 @@ async def handle_yes_no(e):
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
-    elif data == 'no':
+    elif arg == 'no':
         if chan_key not in chat_info.get(user_key, {}):
             return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=_back)
         chat_info[user_key].pop(chan_key, None)
