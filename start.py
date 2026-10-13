@@ -48,8 +48,7 @@ def start_button(e):
     if str(e.sender_id) in info and info[str(e.sender_id)].keys():
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
-    button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
-    button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
+    button.append([Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997), Button.inline('نشر رسالة', data="post_message", style=blue, icon=5328162777594868795)])
     return button
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -150,7 +149,8 @@ async def create_message_callback(e):
         return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     elif data == 'post_message':
         if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
-        b = [Button.inline(num, data=f'post_num:{num}') for num in msg[str(e.sender_id)]]
+        b = [Button.inline(num, data=f'post_num:{num}', style=blue, icon=5242683801598967626) for num in msg[str(e.sender_id)]]
+        b.append(_back)
         return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=b)
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
@@ -233,6 +233,13 @@ async def callback_handler(e, data):
         if not session.get('poll'):return await e.edit('التصويت معطل من قبل!')
         session['poll'] = []
         return await e.edit('تم تعطيل التصويت')
+@ABH.on(events.CallbackQuery(pattern=r'post_num:(.+)'))
+async def final_callback2(e):
+    id = e.sender_id
+    if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
+    if not message.get(id):message[id] = msg.get(str(id))
+    await _send(e)
+    return await e.edit("هل تريد تعديل شيء معين؟", buutons=buttons(e))
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons|text)_(change|delete):(\d+):(\d+)$'))
 async def handle_buttons_and_media(e):
