@@ -17,6 +17,7 @@ from io import BytesIO
 from helpers import *
 from client import *
 info = create('info.json')
+msg = create('message.json')
 not_allowed = ['الفويسات', 'الستيكرات', 'الفويس نوت', 'المتحركات']
 async def save_data():
     try:
@@ -26,7 +27,6 @@ async def save_data():
     except Exception as e:
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
-msg = create('message.json')
 async def save_msg():
     try:
         with open('message.json', 'w', encoding='utf-8') as f:
