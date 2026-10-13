@@ -37,6 +37,8 @@ back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148
 _back = [Button.inline('أظهار الازرار', data='_back', style=green, icon=5974047570249387560)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
+    if e.text == 'اطبع':
+        print(message[e.sender_id]
     await is_user(e)
     await small_filter(e)
 def start_button(e):
