@@ -45,7 +45,7 @@ def start_button(e):
         button.append([Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083)])
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213))
-    button.append([Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997), Button.inline('نشر رسالة', data="post_message", style=blue, icon=5328162777594868795)])
+    button.append([Button.inline('نشر رسالة', data="post_message", style=blue, icon=5328162777594868795), Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997)])
     return button
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -69,7 +69,7 @@ async def start_callback(e):
         return await e.edit(text, buttons=_back)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
-        await e.edit('ارسل الان يوزر او ايدي القناة', buttons=back)
+        await e.edit('ارسل الان يوزر او ايدي القناة', buttons=_back)
     elif data == 'create_message':
         id = e.sender_id
         if id not in message:
@@ -84,7 +84,7 @@ async def start_callback(e):
         chats = await return_names(ids)
         row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}", style=red, icon=5258130763148172425) for ch in chats]
         button = chunk_list(row_button, 2)
-        button.append(back)
+        button.append(_back)
         await e.edit('اختر قناة لحذفها', buttons=button)
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول', 'poll': "ارسل الان نص (اقل من 5 احرف)"}
 def buttons(e):
@@ -118,11 +118,14 @@ def buttons(e):
                 Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)])
     if any(session.values()):
         rows.append([
-            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+            Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
             Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue)])
         rows.append([
-            Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
-            Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
+            Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),])
+        rows.append([
+            Button.inline('تم', data='done', icon=5429501538806548545, style=green),
+            Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
+            ])
     rows.append(_back)
     return rows
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
