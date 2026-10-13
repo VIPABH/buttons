@@ -237,7 +237,7 @@ async def final_callback2(e):
     if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
     if not message.get(id):message[id] = msg.get(str(id))
     await _send(e)
-    return await e.edit("هل تريد تعديل شيء معين؟", buttons=buttons(e))
+    return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons|text)_(change|delete):(\d+):(\d+)$'))
 async def handle_buttons_and_media(e):
