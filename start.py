@@ -19,21 +19,19 @@ from client import *
 info = create('info.json')
 msg = create('message.json')
 not_allowed = ['الفويسات', 'الستيكرات', 'الفويس نوت', 'المتحركات']
-async def save_data():
+def save_data():
     try:
         with open('info.json', 'w', encoding='utf-8') as f:
             json.dump(info, f, ensure_ascii=False, indent=4)
         return True
     except Exception as e:
-        await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
-async def save_msg():
+def save_msg():
     try:
         with open('message.json', 'w', encoding='utf-8') as f:
             json.dump(msg, f, ensure_ascii=False, indent=4)
         return True
     except Exception as e:
-        await hint(f"خطأ أثناء حفظ البيانات: {e}")
         return False
 back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148172425)]
 _back = [Button.inline('أظهار الازرار', data='_back', style=green, icon=5974047570249387560)]
@@ -237,9 +235,7 @@ async def callback_handler(e, data):
 async def final_callback2(e):
     id = e.sender_id
     if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
-    print(message.get(id))
     if not message.get(id):message[id] = msg.get(str(id))
-    print(message.get(id))
     await _send(e)
     return await e.edit("هل تريد تعديل شيء معين؟", buttons=buttons(e))
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
@@ -554,7 +550,7 @@ async def handle_yes_no(e):
             chat_info.get(user_key, {}).pop(chan_key, None)
             return await e.edit('القناة مضافة من قبل', buttons=_back)
         info[user_key][chan_key] = pending
-        await save_data()
+        save_data()
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
@@ -568,7 +564,7 @@ async def handle_yes_no(e):
         return await e.edit('تم الغاء اضافة القناة', buttons=_back)
     elif arg == 'ok_delete_channle':
         info[user_key].pop(chan_key, None)
-        await save_data()
+        save_data()
         return await e.edit('تم حذف القناة ب نجاح', buttons=_back)
     elif arg == 'post':
         if not message.get(e.sender_id, None):
@@ -598,7 +594,7 @@ async def final_callback(e):
         if str(e.sender_id) not in msg:
             msg[str(e.sender_id)] = {}
         msg[str(e.sender_id)][name] = message.get(e.sender_id)
-        await save_msg()
+        save_msg()
         b = [Button.inline('نعم', data=f'done', style=green, icon=5305355874187880345), _back[0]]
         return await e.edit('تم حفظ الرسالة هل تريد نشرها؟', buttons=b)
 COLORS = {"ازرق": "primary", "blue": "primary",
