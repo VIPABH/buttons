@@ -595,7 +595,7 @@ async def final_callback(e):
         del message[e.sender_id]['step']
         if e.sender_id not in msg:
             msg[e.sender_id] = {}
-        msg[e.sender_id].update({name: message.get(e.sender_id)})
+        msg[e.sender_id][name] = message.get(e.sender_id)
         await save_msg()
         b = [Button.inline('نعم', data=f'done', style=green, icon=5305355874187880345), _back[0]]
         return await e.edit('تم حفظ الرسالة هل تريد نشرها؟', buttons=b)
