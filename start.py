@@ -42,7 +42,7 @@ async def is_user_check(e):
 def start_button(e):
     button = []
     if str(e.sender_id) in info and info[str(e.sender_id)].keys():
-        button.append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
+        button.append([Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083)])
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213))
     button.append([Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997), Button.inline('نشر رسالة', data="post_message", style=blue, icon=5328162777594868795)])
