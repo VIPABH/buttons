@@ -95,7 +95,7 @@ def buttons(e):
     text = session.get('text') or []
     media = session.get('media') or []
     button = session.get('buttons') or []
-    poll = session.get('poll') or []
+    post_num = session.get('post_num') or None
     rows = []
     Type = session.get('type')
     if Type in not_allowed:
@@ -121,10 +121,15 @@ def buttons(e):
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
             Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue),
                 ])
-        rows.append([
-            Button.inline('تم', data='done', icon=5429501538806548545, style=green),
-            Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
-            ])
+        if post_num:
+            rows.append([
+                Button.inline('تم', data='done', icon=5429501538806548545, style=green),
+                Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
+                ])
+        else:
+            rows.append([
+                Button.inline('تم', data='done', icon=5429501538806548545, style=green),
+                ])
     rows.append(_back)
     return rows
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
@@ -240,6 +245,7 @@ async def final_callback2(e):
     if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
     if not message.get(id):
         message[id] = msg.get(str(id)).get(num)
+    message[id]['post_num'] = num
     await e.edit('تم اظهار المعاينة في بدايه المحادثه')
     await _send(e)
     return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
@@ -539,6 +545,7 @@ async def small_filter(e):
         await _send(e)
         return await e.reply('تم اضافة نص الزر الثاني', buttons=buttons(e))
     elif step == 'message_name':
+        if len(text) > 5:return await e.reply('صديقي حتى تكون العملية دقيقة لازم تضيف الاسم ب اقل من 5 احرف')
         b = [Button.inline('احفظ', data=f'ok_save:{text}', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
         return await e.reply(f'هل تريد حفظ الرسالة ب اسم ( {text} )', buttons=b)
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post):(-?\d+)$'))
