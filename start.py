@@ -38,7 +38,7 @@ _back = [Button.inline('أظهار الازرار', data='_back', style=green, i
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
     if e.text == 'اطبع':
-        print(message[e.sender_id]
+        print(message[e.sender_id])
     await is_user(e)
     await small_filter(e)
 def start_button(e):
