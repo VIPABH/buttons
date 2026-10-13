@@ -95,6 +95,7 @@ def buttons(e):
     text = session.get('text') or []
     media = session.get('media') or []
     button = session.get('buttons') or []
+    poll = session.get('poll') or []
     post_num = session.get('post_num') or None
     rows = []
     Type = session.get('type')
