@@ -237,7 +237,9 @@ async def callback_handler(e, data):
 async def final_callback2(e):
     id = e.sender_id
     if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
+    print(message.get(id))
     if not message.get(id):message[id] = msg.get(str(id))
+    print(message.get(id))
     await _send(e)
     return await e.edit("هل تريد تعديل شيء معين؟", buttons=buttons(e))
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
@@ -593,9 +595,9 @@ async def final_callback(e):
         else:
             name = e.message_id
         del message[e.sender_id]['step']
-        if e.sender_id not in msg:
-            msg[e.sender_id] = {}
-        msg[e.sender_id][name] = message.get(e.sender_id)
+        if str(e.sender_id) not in msg:
+            msg[str(e.sender_id)] = {}
+        msg[str(e.sender_id)][name] = message.get(e.sender_id)
         await save_msg()
         b = [Button.inline('نعم', data=f'done', style=green, icon=5305355874187880345), _back[0]]
         return await e.edit('تم حفظ الرسالة هل تريد نشرها؟', buttons=b)
