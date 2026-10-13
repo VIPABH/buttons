@@ -265,7 +265,8 @@ async def handle_buttons_and_media(e):
             if target_num < 0:
                 return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا')
         del message[e.sender_id][action_name][target_num]
-        del message[e.sender_id]['type']
+        if message.get(e.sender_id).get('type'):
+            del message[e.sender_id]['type']
         await e.edit(f'تم بنجاح حذف {translate[action_name]}', buttons=back)
 DB_FILE = 'poll.json'
 def save_db():
