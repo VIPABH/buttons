@@ -122,7 +122,7 @@ def buttons(e):
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
             Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue),
                 ])
-        if post_num:
+        if not post_num:
             rows.append([
                 Button.inline('تم', data='done', icon=5429501538806548545, style=green),
                 Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
