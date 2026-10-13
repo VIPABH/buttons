@@ -234,7 +234,7 @@ async def callback_handler(e, data):
         return await e.edit('تم تعطيل التصويت')
 @ABH.on(events.CallbackQuery(pattern=r'post_num:(.+)'))
 async def final_callback2(e):
-    _, num = e.data.decode('utf-8')
+    _, num = e.data.decode('utf-8').split(':')
     id = e.sender_id
     if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
     if not message.get(id):
