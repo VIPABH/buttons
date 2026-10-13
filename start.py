@@ -147,7 +147,7 @@ async def create_message_callback(e):
         return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     elif data == 'post_message':
         if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
-        b = [Button.inline(num, data=f'post_num:{num}', style=blue, icon=5242683801598967626) for num in msg[str(e.sender_id)]]
+        b = [Button.inline(str(num), data=f'post_num:{num}', style=blue, icon=5242683801598967626) for num in msg[str(e.sender_id)]]
         b.append(_back[0])
         return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=b)
     if not e.sender_id in message:
