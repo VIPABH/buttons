@@ -80,6 +80,7 @@ async def start_callback(e):
             message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
         await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e), edit=True)
     elif data == '_back':
+        if message.get(id):del message[id]['step']
         await e.edit('تفضل اختر من بين الازرار🌚', buttons=start_button(e))
     else:
         if not id in info or not info[id].keys():return await e.edit('عذرا بس انت ماعندك قنوات مضافة🌚', buttons=_back)
@@ -179,7 +180,9 @@ async def create_message_callback(e):
         ids = [int(id) for id in info[str(e.sender_id)]]
         chats = await return_names(ids)
         b = [Button.inline(chat.title, data=f'post:{chat.id}', style=blue, icon=5305355874187880345) for chat in chats]
-        await e.edit("اختار قناة للنشر فيها", buttons=chunk_list(b, 2))
+        button = chunk_list(b, 2)
+        button.append(_back)
+        await e.edit("اختار قناة للنشر فيها", buttons=button)
     elif data == 'post_message':
         if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
         b = [Button.inline(num, data=f'post_num:{num}') for num in msg[str(e.sender_id)]]
@@ -582,11 +585,12 @@ async def final_callback(e):
             name = data.split(':')[1] 
         else:
             name = e.message_id
+        del message[e.sender_id]['step']
         if e.sender_id not in msg:
             msg[e.sender_id] = {}
         msg[e.sender_id].update({name: message.get(e.sender_id)})
         await save_msg()
-        b = [Button.inline('نعم', data=f'done', style=green, icon=5305355874187880345), back[0]]
+        b = [Button.inline('نعم', data=f'done', style=green, icon=5305355874187880345), _back[0]]
         return await e.edit('تم حفظ الرسالة هل تريد نشرها؟', buttons=b)
 COLORS = {"ازرق": "primary", "blue": "primary",
           "احمر": "danger", "red": "danger",
