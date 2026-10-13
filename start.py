@@ -73,7 +73,7 @@ async def start_callback(e):
         return await e.edit(text, buttons=_back)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
-        await e.edit('ارسل الان يوزر او ايدي القناة', buttons=back)
+        await e.edit('ارسل الان يوزر او ايدي القناة', buttons=_back)
     elif data == 'create_message':
         id = e.sender_id
         if id not in message:
@@ -87,6 +87,7 @@ async def start_callback(e):
         chats = await return_names(ids)
         row_button = [Button.inline(ch.title, data=f"ok_delete_channle:{ch.id}", style=red, icon=5258130763148172425) for ch in chats]
         button = chunk_list(row_button, 2)
+        button.append(back[0])
         await e.edit('اختر قناة لحذفها', buttons=button)
 arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول', 'poll': "ارسل الان نص (اقل من 5 احرف)"}
 def buttons(e):
