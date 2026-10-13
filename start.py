@@ -149,7 +149,7 @@ async def create_message_callback(e):
         if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
         b = [Button.inline(str(num), data=f'post_num:{num}', style=blue, icon=5242683801598967626) for num in msg[str(e.sender_id)]]
         _b = chunk_list(b, 2)
-        _b.append(_back[0])
+        _b.append(_back)
         return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=_b)
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
