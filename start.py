@@ -74,6 +74,8 @@ async def start_callback(e):
         id = e.sender_id
         if id not in message:
             message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
+        if message.get(id).get('post_num'):
+            del message[id]['post_num']
         await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e), edit=True)
     elif data == '_back':
         if message.get(id):del message[id]['step']
