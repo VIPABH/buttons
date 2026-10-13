@@ -49,7 +49,7 @@ def start_button(e):
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
     button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
-    button.append([Button.inline('نشر رسالة', data="save_message", style=green, icon=5328162777594868795)])
+    button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
     return button
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -132,7 +132,7 @@ async def create_message(e):
     if id not in message:
         message[id] = {'text': [], 'media': [], 'buttons': [], 'poll': []}
     await send(e, 'اهلا عزيزي وين تحب نبدي', buttons=buttons(e))
-@ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back|delete)'))
+@ABH.on(events.CallbackQuery(pattern=r'^(?:(set|del|edit)_|done|back|delete|post_message)'))
 async def create_message_callback(e):
     data = e.data.decode('utf-8')
     session = message.get(e.sender_id, None)
@@ -178,6 +178,10 @@ async def create_message_callback(e):
         chats = await return_names(ids)
         b = [Button.inline(chat.title, data=f'post:{chat.id}', style=blue, icon=5305355874187880345) for chat in chats]
         await e.edit("اختار قناة للنشر فيها", buttons=chunk_list(b, 2))
+    elif data == 'post_message':
+        if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
+        b = [Button.inline(num, data=f'post_num:{num}') for num in msg[str(e.sender_id)]]
+        return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=b)
 async def callback_handler(e, data):
     session = message.get(e.sender_id)
     if data == 'text':
