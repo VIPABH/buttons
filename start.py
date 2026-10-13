@@ -49,7 +49,7 @@ def start_button(e):
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083))
     button.append([Button.inline('انشاء رسالة', data="create_message", style=green, icon=5222040745665379997)])
-    button.append([Button.inline('نشر رسالة', data="post_message", style=green, icon=5328162777594868795)])
+    button.append([Button.inline('نشر رسالة', data="save_message", style=green, icon=5328162777594868795)])
     return button
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -540,14 +540,14 @@ async def handle_yes_no(e):
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
-    elif arg == 'no':
+        return await e.edit('تم اضافة القناة بنجاح🌚', buttons=_back)
+    elif data == 'no':
         if chan_key not in chat_info.get(user_key, {}):
             return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=_back)
         chat_info[user_key].pop(chan_key, None)
         if not chat_info[user_key]:
             del chat_info[user_key]
         return await e.edit('تم الغاء اضافة القناة', buttons=_back)
-        await e.edit('تم اضافة القناة ب نجاح', buttons=_back)
     elif arg == 'ok_delete_channle':
         info[user_key].pop(chan_key, None)
         await save_data()
