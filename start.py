@@ -30,7 +30,7 @@ async def save_data():
 async def save_msg():
     try:
         with open('message.json', 'w', encoding='utf-8') as f:
-            json.dump(mgs, f, ensure_ascii=False, indent=4)
+            json.dump(msg, f, ensure_ascii=False, indent=4)
         return True
     except Exception as e:
         await hint(f"خطأ أثناء حفظ البيانات: {e}")
