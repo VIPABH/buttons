@@ -117,7 +117,6 @@ def buttons(e):
         else:
             rows.append([
                 Button.inline('إضافة زر', data='set_buttons', icon=5280993797482750213, style=green if button else blue)])
-    rows.append(_back)
     if any(session.values()):
         rows.append([
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
@@ -125,6 +124,7 @@ def buttons(e):
         rows.append([
             Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
             Button.inline('تم', data='done', icon=5429501538806548545, style=green)])
+    rows.append(_back)
     return rows
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
 async def create_message(e):
@@ -148,8 +148,9 @@ async def create_message_callback(e):
     elif data == 'post_message':
         if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
         b = [Button.inline(str(num), data=f'post_num:{num}', style=blue, icon=5242683801598967626) for num in msg[str(e.sender_id)]]
-        b.append(_back[0])
-        return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=b)
+        _b = chunk_list(b, 2)
+        _b.append(_back[0])
+        return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=_b)
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     if data == 'del_all':
