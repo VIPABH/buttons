@@ -148,6 +148,10 @@ async def create_message_callback(e):
             else:
                 return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
         return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
+    elif data == 'post_message':
+        if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
+        b = [Button.inline(num, data=f'post_num:{num}') for num in msg[str(e.sender_id)]]
+        return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=b)
     if not e.sender_id in message:
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     if data == 'del_all':
@@ -183,10 +187,6 @@ async def create_message_callback(e):
         button = chunk_list(b, 2)
         button.append(_back)
         await e.edit("اختار قناة للنشر فيها", buttons=button)
-    elif data == 'post_message':
-        if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
-        b = [Button.inline(num, data=f'post_num:{num}') for num in msg[str(e.sender_id)]]
-        return await e.edit('اختر الان بين الازرار لنشر الرسالة', buttons=b)
 async def callback_handler(e, data):
     session = message.get(e.sender_id)
     if data == 'text':
