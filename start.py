@@ -37,8 +37,6 @@ back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148
 _back = [Button.inline('أظهار الازرار', data='_back', style=green, icon=5974047570249387560)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
-    if e.text == 'اطبع':
-        print(message[e.sender_id])
     await is_user(e)
     await small_filter(e)
 def start_button(e):
@@ -239,7 +237,7 @@ async def final_callback2(e):
     id = e.sender_id
     if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
     if not message.get(id):
-        message[id] = msg.get(str(id))
+        message[id] = msg.get(str(id)).get(num)
     await e.edit('تم اظهار المعاينة في بدايه المحادثه')
     await _send(e)
     return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
