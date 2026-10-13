@@ -535,7 +535,7 @@ async def small_filter(e):
         await _send(e)
         return await e.reply('تم اضافة نص الزر الثاني', buttons=buttons(e))
     elif step == 'message_name':
-        b = [Button.inline('احفظ', data='ok_save', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
+        b = [Button.inline('احفظ', data=f'ok_save:{text}', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
         return await e.reply(f'هل تريد حفظ الرسالة ب اسم ( {text} )', buttons=b)
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post):(-?\d+)$'))
 async def handle_yes_no(e):
