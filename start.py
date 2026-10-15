@@ -253,7 +253,7 @@ async def final_callback2(e):
         if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
         if not message.get(id):
             message[id] = msg.get(str(id)).get(num)
-        message[id]['post_num'] = num
+        message[id]['post_num'] = num  
         await e.edit('تم اظهار المعاينة في بدايه المحادثه')
         await _send(e)
         return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
