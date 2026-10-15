@@ -260,6 +260,8 @@ async def final_callback2(e):
     else:
         if not msg.get(str(id)) or not msg.get(str(id), {}).get(num):return await e.edit('ماتكدر تحذف الرسالة هاي لان اصلا مو مخزنة', buttons=back)
         del msg[str(id)][num]
+        if message.get(id).get('post_num'):
+            del message[id]['post_num']
         save_msg()
         return await e.edit('تم حذف الرسالة من الرسائل المحفوظة👍', buttons=back)
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
