@@ -135,7 +135,7 @@ def buttons(e):
         else:
             rows.append([
                 Button.inline('تم', data='done', icon=5429501538806548545, style=green),
-                Button.inline('حذف الرسالة', data=f'delete_message:{post_num}', icon=5242683801598967626, style=green),
+                Button.inline('حذف الرسالة', data=f'delete_message:{post_num}', icon=5408832111773757273, style=red),
                 ])
     rows.append(_back)
     return rows
@@ -245,7 +245,7 @@ async def callback_handler(e, data):
         if not session.get('poll'):return await e.edit('التصويت معطل من قبل!')
         session['poll'] = []
         return await e.edit('تم تعطيل التصويت')
-@ABH.on(events.CallbackQuery(pattern=r'(post_num|delete_message):(.+)'))
+@ABH.on(events.CallbackQuery(pattern=r'(post_num|delete_message):'))
 async def final_callback2(e):
     arg, num = e.data.decode('utf-8').split(':')
     id = e.sender_id
@@ -258,8 +258,8 @@ async def final_callback2(e):
         await _send(e)
         return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
     else:
-        if not info.get(str(id)) or not info.get(str(id), {}).get(num):return await e.edit('ماتكدر تحذف الرسالة هاي لان اصلا مو مخزنة')
-        del info[str(id)][num]
+        if not msg.get(str(id)) or not msg.get(str(id), {}).get(num):return await e.edit('ماتكدر تحذف الرسالة هاي لان اصلا مو مخزنة')
+        del msg[str(id)][num]
         save_data()
         return await e.edit('تم حذف الرسالة من الرسائل المحفوظة👍')
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
