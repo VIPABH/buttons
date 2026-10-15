@@ -37,6 +37,8 @@ back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148
 _back = [Button.inline('أظهار الازرار', data='_back', style=green, icon=5974047570249387560)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
+    if e.text == 'اطبع':
+        print(message[e.sender_id])
     await is_user(e)
     await small_filter(e)
 def start_button(e):
@@ -45,7 +47,7 @@ def start_button(e):
         button.append([Button.inline('القنوات', data='channels', style=blue, icon=5188311512791393083)])
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213))
-    button.append([Button.inline('نشر رسالة', data="post_message", style=blue, icon=5328162777594868795), Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997)])
+    button.append([Button.inline('الرسائل المحفوظة', data="post_message", style=blue, icon=5328162777594868795), Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997)])
     return button
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
@@ -124,6 +126,7 @@ def buttons(e):
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
             Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue),
                 ])
+    if str(e.sender_id) in info and info[str(e.sender_id)].keys():
         if not post_num:
             rows.append([
                 Button.inline('تم', data='done', icon=5429501538806548545, style=green),
@@ -132,6 +135,7 @@ def buttons(e):
         else:
             rows.append([
                 Button.inline('تم', data='done', icon=5429501538806548545, style=green),
+                Button.inline('حذف الرسالة', data=f'delete_message:{post_num}', icon=5242683801598967626, style=green),
                 ])
     rows.append(_back)
     return rows
@@ -241,17 +245,23 @@ async def callback_handler(e, data):
         if not session.get('poll'):return await e.edit('التصويت معطل من قبل!')
         session['poll'] = []
         return await e.edit('تم تعطيل التصويت')
-@ABH.on(events.CallbackQuery(pattern=r'post_num:(.+)'))
+@ABH.on(events.CallbackQuery(pattern=r'(post_num|delete_message):(.+)'))
 async def final_callback2(e):
-    _, num = e.data.decode('utf-8').split(':')
+    arg, num = e.data.decode('utf-8').split(':')
     id = e.sender_id
-    if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
-    if not message.get(id):
-        message[id] = msg.get(str(id)).get(num)
-    message[id]['post_num'] = num
-    await e.edit('تم اظهار المعاينة في بدايه المحادثه')
-    await _send(e)
-    return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
+    if arg == "post_num":
+        if str(id) not in msg:return await e.edit('عذرا صديقي انت ماعندك رساله محفوظة', buttons=_back)
+        if not message.get(id):
+            message[id] = msg.get(str(id)).get(num)
+        message[id]['post_num'] = num
+        await e.edit('تم اظهار المعاينة في بدايه المحادثه')
+        await _send(e)
+        return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
+    else:
+        if not info.get(str(id)) or not info.get(str(id), {}).get(num):return await e.edit('ماتكدر تحذف الرسالة هاي لان اصلا مو مخزنة')
+        del info[str(id)][num]
+        save_data()
+        return await e.edit('تم حذف الرسالة من الرسائل المحفوظة👍')
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons|text)_(change|delete):(\d+):(\d+)$'))
 async def handle_buttons_and_media(e):
@@ -265,7 +275,8 @@ async def handle_buttons_and_media(e):
     if action_type == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][target_num]
-        del message[e.sender_id]['type']
+        if message.get(e.sender_id).get('type'):
+            del message[e.sender_id]['type']
         await e.edit(f'ارسل الان {translate[action_name]}', buttons=back)
     else:
         if length != old_len:
