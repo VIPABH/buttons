@@ -168,13 +168,13 @@ async def create_message_callback(e):
         return await e.edit('جلسة انشاء الرساله حذفت , اعد المحاولة', buttons=back)
     if data == 'del_all':
         del message[e.sender_id]
-        return await e.edit('تم حذف الجلسة')
+        return await e.edit('تم حذف الجلسة', buttons=back)
     if data == 'delete':
         text = session.get('text')
         media = session.get('media')
         row_buttons = session.get('buttons')
         row_poll = session.get('poll')
-        if not any(session.values()):return await e.reply('بعدك ما ضفت شيء حته تحذف ')
+        if not any(session.values()):return await e.reply('بعدك ما ضفت شيء حته تحذف ', buttons=back)
         button = []
         if text:
             button.append(Button.inline('تعديل النص', data='edit_text', style=red, icon=5229113891081956317))
@@ -258,10 +258,10 @@ async def final_callback2(e):
         await _send(e)
         return await e.respond("هل تريد تعديل شيء معين؟", buttons=buttons(e))
     else:
-        if not msg.get(str(id)) or not msg.get(str(id), {}).get(num):return await e.edit('ماتكدر تحذف الرسالة هاي لان اصلا مو مخزنة')
+        if not msg.get(str(id)) or not msg.get(str(id), {}).get(num):return await e.edit('ماتكدر تحذف الرسالة هاي لان اصلا مو مخزنة', buttons=back)
         del msg[str(id)][num]
         save_data()
-        return await e.edit('تم حذف الرسالة من الرسائل المحفوظة👍')
+        return await e.edit('تم حذف الرسالة من الرسائل المحفوظة👍', buttons=back)
 translate = {"media": 'الميديا', 'buttons': 'الزر', 'text': 'النص'}
 @ABH.on(events.CallbackQuery(pattern=r'^(media|buttons|text)_(change|delete):(\d+):(\d+)$'))
 async def handle_buttons_and_media(e):
@@ -271,7 +271,7 @@ async def handle_buttons_and_media(e):
     target_num = int(target_num)
     old_len = int(old_len)
     length = len(message[e.sender_id][action_name])
-    if length != old_len:return await e.edit(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚')
+    if length != old_len:return await e.edit(f' صار اختلاف معين بالجلسة (ممكن حذفت شيء سابقا ب جلسة {translate[action_name]} ) \nلضمان الدقة عيد جلسة  🌚', buttons=back)
     if action_type == 'change':
         message.setdefault(e.sender_id, {})['step'] = action_name
         del message[e.sender_id][action_name][target_num]
@@ -283,7 +283,7 @@ async def handle_buttons_and_media(e):
             difference = old_len - length
             target_num = difference - target_num
             if target_num < 0:
-                return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا')
+                return await e.edit('فشل معالجة العملية بسبب ان الجلسة مختلفة كليا', buttons=back)
         del message[e.sender_id][action_name][target_num]
         if message.get(e.sender_id).get('type'):
             del message[e.sender_id]['type']
