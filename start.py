@@ -66,7 +66,7 @@ async def start_callback(e):
         for ch in info[id]:
             ids.append(int(ch))
         chats = await return_names(ids)
-        row_names = [f'القناة {ordinal_arabic_female(num) or {num2words(num, lang="ar", )}} - ( {chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
+        row_names = [f'القناة {ordinal_arabic_female(num) or {num2words(num, lang="ar", )}} - ( {f'https://t.me/{chat.username}' if chat and chat.username else chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
         return await e.edit(text, buttons=_back)
     elif data.startswith('add'):
@@ -159,7 +159,7 @@ async def create_message_callback(e):
                 return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
         return await e.edit('اختار من الازرار عزيزي', buttons=buttons(e))
     elif data == 'post_message':
-        if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!')
+        if not msg.get(str(e.sender_id)):return await e.edit('ماعندك رسالة محفوظة!!', buttons=_back)
         b = [Button.inline(str(num), data=f'post_num:{num}', style=blue, icon=5242683801598967626) for num in msg[str(e.sender_id)]]
         _b = chunk_list(b, 2)
         _b.append(_back)
