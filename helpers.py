@@ -81,7 +81,9 @@ async def extract_media_data(e):
         return {"type": "photo", "id": photo.id, "hash": photo.access_hash, "ref": photo.file_reference.hex()}
     return None
 async def ment(entity):
-  if hasattr(entity, "sender"):
+  if isinstance(entity, (int, str)) and str(entity).lstrip('-').isdigit():
+    user = await ABH.get_entity(int(entity))
+  elif hasattr(entity, "sender"):
     user = await entity.get_sender()
   else:
     user = entity
