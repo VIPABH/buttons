@@ -87,12 +87,12 @@ async def wfffp_callback(e):
     if data == 'users_count':return await e.edit(f'عدد مستخدمين البوت هو ( {users_count} )', buttons=back_to_button)
     elif data == "banned_users":
         if not r.smembers(f"banned_users:{me.id}"):return await e.edit('ماكو مستخدمين محظورين', buttons=back_to_button)
-        mention = [f"{num}- ( {await ment(id)} ) - ( `{id}` )" for num, id in enumrate(r.smembers(f"banned_users:{me.id}"), start=1)]
+        mention = [f"{num}- ( {await ment(id)} ) - ( `{id}` )" for num, id in enumerate(r.smembers(f"banned_users:{me.id}"), start=1)]
         await e.edit(f"المستخدمين المحظورين:\n {'\n'.join(mention)}", buttons=back_to_button)
     elif data == "users":
-        mention = [f"{num}- ( {await ment(id)} ) - ( `{id}` )" for num, id in enumrate(r.smembers(f"users:{me.id}"), start=1)]
+        mention = [f"{num}- ( {await ment(id)} ) - ( `{id}` )" for num, id in enumerate(r.smembers(f"users:{me.id}"), start=1)]
         await e.edit(f"المستخدمين:\n {'\n'.join(mention)}", buttons=back_to_button)
-    elif data == 'back_button':await e.edit('تفضل ابنل الهاش', buttons=back_to_button)
+    elif data == 'back_button':await e.edit('تفضل ابنل الهاش', buttons=chunked_button)
     else:
         ban_and_unban[e.sender_id] = data
         await e.edit('ارسل الان ايدي او يوزر المستخدم', buttons=back_to_button)
