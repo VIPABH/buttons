@@ -3,6 +3,11 @@ from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.types import ChannelParticipantsMentions
 from telethon import TelegramClient, events, Button
 from telethon.errors import UserNotParticipantError
+from telethon.tl.types import (
+    MessageExtendedMediaPreview, DocumentAttributeAudio, DocumentAttributeSticker,
+    Message, MessageMediaPhoto, MessageMediaDocument, MessageMediaGeo,
+    DocumentAttributeVideo, DocumentAttributeAnimated,
+    MessageMediaPoll, MessageExtendedMedia,)
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import asyncio, json, inspect
