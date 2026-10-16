@@ -92,7 +92,7 @@ async def start_callback(e):
         button = chunk_list(row_button, 2)
         button.append(_back)
         await e.edit('اختر قناة لحذفها', buttons=button)
-arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'ارسل الان الزر بالتنسيق الاتي \n اما اسم الزر بعده : وبعده الرابط \nمثال `ابن هاشم-https://t.me/wfffp` \n او اسم الزر بعده الرابط مفصول', 'poll': "ارسل الان نص (اقل من 5 احرف)"}
+arg = {'text': 'ارسل الان النص', 'media': 'ارسل الان الميديا', 'buttons': 'يمكنك اضافة الزر ومعلوماته كالاتي\n `النص-https://t.me/wfffp-اللون-الايقونة` او ارسال كل معلومه على فراد\n امثله `ابن هاشم - https://t.me/wfffp - شفاف - تخطي` \n `ابن هاشم -https://t.me/wfffp - اخضر-🌚`\n ```الاسم: هو الاسم الذي يوضع بالزر ( 8 احرف او اقل )\n``````الرابط: هو محتوى الزر عند الضغط\n``````اللون: هو لون الزر والالوان المتاحه هي \n ( احمر اخضر ازرق شفاف ) ```الايقونه: هي الايموجي الذي يوضع داخل الزر ( للمستخدمين المميزين فقط! ) \n يمكنك تخطي الايقونه عبر كتابه تخطي\n```\n```\n مثلا ارسال اسم الزر وبعدها الرابط وبعدها الايقونه', 'poll': "ارسل الان نص (اقل من 8 احرف)"}
 def buttons(e):
     id = e.sender_id
     if id not in message:
@@ -423,7 +423,7 @@ async def small_filter(e):
             message.setdefault(e.sender_id, {}).setdefault('media', [])
             if len(message[e.sender_id]['media']) > 1 and Type in not_allowed:
                 del message[e.sender_id]['step']
-                return await e.reply(f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة', buttons=back)
+                return await custom_emoji(e, f'عذرا بس ماكدر ارسل 2 من {Type} ب رسالة وحدة ', 5465665476971471368, buttons=buttons(e))
             message[e.sender_id]['media'].append(await extract_media_data(e))
             message[e.sender_id]['type'] = Type
             if text:
@@ -443,17 +443,27 @@ async def small_filter(e):
     elif step == 'buttons':
         if not text:
             return await e.reply('ارسل اسم الزر!')
-        message.setdefault(e.sender_id, {}).setdefault('buttons', [])
         if '-' in text:
-            name, url = text.split('-', 1)
-            name, url = name.strip(), url.strip()
+            name, url, color, emoji = text.split('-')
+            if len(name) > 8:return await e.reply('صديقي لازم يكون الاسم اقل من 8 احرف')
+            url = url.strip()
             if not url.startswith(('http://', 'https://', 't.me', 'tg://')):
                 return await e.reply('الرابط غير صالح!')
-            message[e.sender_id]['buttons'].append((name, url))
+            if color not in ('احمر', 'ازرق', 'اخضر', 'شفاف'):return await e.reply(f"{' أو '.join([f'`{item}`' for item in ['احمر', 'ازرق', 'اخضر', 'شفاف']])}")
+            icon = None
+            if not emoji == 'تخطي':
+                for entity in (e.message.entities or []):
+                    if isinstance(entity, MessageEntityCustomEmoji):
+                        icon = entity.document_id
+                        break
+                if icon is None:
+                    return await e.reply('ارسل ايموجي مميز او اكتب تخطي!')
+                message[e.sender_id]['buttons'].append((name, url, color, icon))
             await _send(e)
             await e.reply('تم اضافة الزر', buttons=buttons(e))
             del message[e.sender_id]['step']
         else:
+            if len(text) > 8:return await e.reply('صديقي لازم يكون الاسم اقل من 8 احرف')
             message[e.sender_id]['temp_btn_name'] = text
             message[e.sender_id]['step'] = 'url'
             await e.reply('تم اضافة اسم الزر\n ارسل الرابط', buttons=back)
@@ -487,7 +497,6 @@ async def small_filter(e):
             if icon is None:
                 return await e.reply('ارسل ايموجي مميز او اكتب تخطي!')
             done_msg = 'تم اضافة الزر'
-        message[e.sender_id]['icon'] = icon
         message[e.sender_id]['buttons'].append((temp_btn_name, button_url, coloer_button, icon))
         del message[e.sender_id]['step']
         await _send(e)
@@ -555,18 +564,18 @@ async def small_filter(e):
             return await e.reply(caption, file=photo_file, buttons=confirm_buttons)
         return await e.reply(caption, buttons=confirm_buttons)
     elif step == 'poll':
-        if len(text) > 5:return await e.reply('لازم يكون النص اقل من 5 احرف')
+        if len(text) > 8:return await e.reply('لازم يكون النص اقل من 8 احرف')
         message[e.sender_id]['f_poll_name'] = text
         message[e.sender_id]['step'] = 's_poll_name'
         return await e.reply('تم اضافة نص الزر الاول\nارسل نص الزر الثاني')
     elif step == 's_poll_name':
-        if len(text) > 5:return await e.reply('لازم يكون النص اقل من 5 احرف')
+        if len(text) > 8:return await e.reply('لازم يكون النص اقل من 8 احرف')
         message[e.sender_id]['poll'].append((message[e.sender_id]['f_poll_name'], text))
         del message[e.sender_id]['step']
         await _send(e)
         return await e.reply('تم اضافة نص الزر الثاني', buttons=buttons(e))
     elif step == 'message_name':
-        if len(text) > 5:return await e.reply('صديقي حتى تكون العملية دقيقة لازم تضيف الاسم ب اقل من 5 احرف')
+        if len(text) > 8:return await e.reply('صديقي حتى تكون العملية دقيقة لازم تضيف الاسم ب اقل من 8 احرف')
         b = [Button.inline('احفظ', data=f'ok_save:{text}', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
         return await e.reply(f'هل تريد حفظ الرسالة ب اسم ( {text} )', buttons=b)
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post):(-?\d+)$'))
@@ -631,150 +640,3 @@ async def final_callback(e):
         save_msg()
         b = [Button.inline('نعم', data=f'done', style=green, icon=5305355874187880345), _back[0]]
         return await e.edit('تم حفظ الرسالة هل تريد نشرها؟', buttons=b)
-COLORS = {"ازرق": "primary", "blue": "primary",
-          "احمر": "danger", "red": "danger",
-          "اخضر": "success", "green": "success"}
-MAX_BUTTONS = 20
-MAX_LABEL_LEN = 64
-def norm(w):
-    return w.lower().strip().replace("أ", "ا").replace("إ", "ا").replace("آ", "ا")
-def valid_url(url):
-    if url.startswith("tg://"):
-        return True
-    try:
-        p = urlparse(url)
-        return p.scheme in ("http", "https") and bool(p.netloc)
-    except Exception:
-        return False
-def utf16_len(s):
-    return len(s.encode("utf-16-le")) // 2
-def split_pos(text, sep):
-    parts, start = [], 0
-    for chunk in text.split(sep):
-        idx = text.index(chunk, start)
-        parts.append((chunk, idx))
-        start = idx + len(chunk)
-    return parts
-def custom_emoji_id(entities, raw_text, offset_cp, length):
-    off = utf16_len(raw_text[:offset_cp])
-    for ent in entities:
-        if isinstance(ent, MessageEntityCustomEmoji) and ent.offset == off:
-            return ent.document_id
-    return None
-@ABH.on(events.NewMessage(pattern=r"^زر(?:\s+(.+))?$"))
-async def handler(event):
-    full_text = event.pattern_match.group(1)
-    if not full_text:
-        return await event.reply(
-            "يرجى كتابة الأزرار بعد الأمر، بصيغة:\n\n"
-            "`زر اللون اسم الزر الرابط الايموجي`\n\n"
-            "مثال:\n`زر ازرق المطور https://t.me/k_4x1 🌚`\n\n"
-            "اللون والايموجي اختياريان. لإضافة زر جديد استخدم `|`"
-        )
-    if not event.is_reply:
-        return await event.reply("يجب الرد على الرسالة التي تريد نسخها.")
-    reply_msg = await event.get_reply_message()
-    if reply_msg is None:
-        return await event.reply("تعذّر العثور على الرسالة المردود عليها.")
-    raw_text = event.raw_text or ""
-    entities = event.message.entities or []
-    base_offset = event.pattern_match.start(1)
-    items = [(i, p) for i, p in split_pos(full_text, "|") if i.strip()]
-    if len(items) > MAX_BUTTONS:
-        return await event.reply(f"الحد الأقصى هو {MAX_BUTTONS} زرًا.")
-    buttons, row, invalid = [], [], []
-    for raw_item, item_pos in items:
-        item = raw_item.strip()
-        item_offset = item_pos + (len(raw_item) - len(raw_item.lstrip()))
-        tokens = list(re.finditer(r"\S+", item))
-        parts = [t.group(0) for t in tokens]
-        url_index = next((i for i, v in enumerate(parts)
-                           if v.startswith(("http://", "https://", "tg://"))), None)
-        if url_index is None or not valid_url(parts[url_index]):
-            invalid.append(raw_item)
-            continue
-        url = parts[url_index]
-        before = parts[:url_index]
-        style = None
-        if before and norm(before[0]) in COLORS:
-            style, before = COLORS[norm(before[0])], before[1:]
-        label = " ".join(before).strip() or "اضغط هنا"
-        if len(label) > MAX_LABEL_LEN:
-            invalid.append(raw_item)
-            continue
-        after = parts[url_index + 1:]
-        if len(after) > 1:
-            invalid.append(raw_item)
-            continue
-        icon = None
-        if after:
-            icon_token, icon_match = after[0], tokens[url_index + 1]
-            offset_cp = base_offset + item_offset + icon_match.start()
-            cid = custom_emoji_id(entities, raw_text, offset_cp, len(icon_token))
-            if cid is not None:
-                icon = cid
-            elif len(icon_token) <= 16:
-                icon = icon_token
-            else:
-                invalid.append(raw_item)
-                continue
-        try:
-            button = Button.url(label, url, style=style, icon=icon)
-        except Exception:
-            invalid.append(raw_item)
-            continue
-        row.append(button)
-        if len(row) == 2:
-            buttons.append(row)
-            row = []
-    if row:
-        buttons.append(row)
-    if not buttons:
-        return await event.reply("لم يتم العثور على أي أزرار صالحة.")
-    warning = ""
-    if invalid:
-        shown = "\n".join(f"• `{x.replace('`', chr(39))}`" for x in invalid[:5])
-        warning = f"\n\n⚠️ تم تجاهل بعض الأزرار:\n{shown}"
-        if len(invalid) > 5:
-            warning += f"\n... و {len(invalid) - 5} أخرى."
-    try:
-        if reply_msg.media:
-            await ABH.send_file(event.chat_id, reply_msg.media,
-                                 caption=reply_msg.message or "", buttons=buttons)
-        elif reply_msg.message:
-            await ABH.send_message(event.chat_id, reply_msg.message, buttons=buttons)
-        else:
-            return await event.reply("لا يمكن نسخ نوع هذه الرسالة.")
-        if warning:
-            await ABH.send_message(event.chat_id, f"تم إنشاء الأزرار بنجاح.{warning}")
-    except Exception:
-        return await event.reply("حدث خطأ أثناء إنشاء الرسالة والأزرار.")
-def get_message_type(_msg: Message) -> str:
-    if _msg is None:
-        return
-    if isinstance(_msg.media, MessageExtendedMediaPreview) or isinstance(_msg.media, MessageExtendedMedia):
-        inner = _msg.media.media
-        return get_message_type(Message(id=_msg.id, media=inner))
-    if isinstance(_msg.media, MessageMediaPhoto):
-        return "الصور" 
-    if isinstance(_msg.media, MessageMediaDocument):
-        for attr in _msg.media.document.attributes:
-            if isinstance(attr, DocumentAttributeAnimated):
-                return "المتحركات"
-        for attr in _msg.media.document.attributes:
-            if isinstance(attr, DocumentAttributeVideo):
-                if getattr(attr, "round_message", False):
-                    return "الفويس نوت"
-                return "الفيديوهات"  
-        for attr in _msg.media.document.attributes:
-            if isinstance(attr, DocumentAttributeSticker):
-                return "الستيكرات" 
-            if isinstance(attr, DocumentAttributeAudio):
-                return "الفويسات" if getattr(attr, "voice", False) else "الصوتيات"
-        mime = _msg.media.document.mime_type or ""
-        if mime.startswith("image/"):
-            return "الصور" 
-        elif mime.startswith("video/"):
-            return "الفيديوهات"  
-        elif mime.startswith("audio/"):
-            return "الصوتيات" 
