@@ -37,8 +37,6 @@ back = [Button.inline('الرجوع', data='back', style=red, icon=5258130763148
 _back = [Button.inline('أظهار الازرار', data='_back', style=green, icon=5974047570249387560)]
 @ABH.on(events.NewMessage)
 async def is_user_check(e):
-    if e.text == 'اطبع':
-        print(message[e.sender_id])
     await is_user(e)
     await small_filter(e)
 def start_button(e):
@@ -402,6 +400,9 @@ async def small_filter(e):
     session = message.get(e.sender_id) or {}
     if not session:return
     step = session.get('step')
+    post_num = session.get('post_num', None)
+    if step and post_num:
+        del message[e.sender_id]['post_num']
     if not step:return
     text = e.text.strip() or None
     if text == 'انشاء رسالة':return
