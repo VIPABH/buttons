@@ -86,10 +86,10 @@ async def wfffp_callback(e):
     users_count = r.scard(key)
     if data == 'users_count':return await e.edit(f'عدد مستخدمين البوت هو ( {users_count} )', buttons=back_to_button)
     elif data == "banned_users":
+        if not r.smembers(f"banned_users:{me.id}"):return await e.edit('ماكو مستخدمين محظورين', buttons=back_to_button)
         mention = [f"{num}- ( {await ment(id)} ) - ( `{id}` )" for num, id in enumrate(r.smembers(f"banned_users:{me.id}"), start=1)]
         await e.edit(f"المستخدمين المحظورين:\n {'\n'.join(mention)}", buttons=back_to_button)
     elif data == "users":
-        if not r.smembers(f"banned_users:{me.id}"):return await e.edit('ماكو مستخدمين محظورين', buttons=back_to_button)
         mention = [f"{num}- ( {await ment(id)} ) - ( `{id}` )" for num, id in enumrate(r.smembers(f"users:{me.id}"), start=1)]
         await e.edit(f"المستخدمين:\n {'\n'.join(mention)}", buttons=back_to_button)
     elif data == 'back_button':await e.edit('تفضل ابنل الهاش', buttons=back_to_button)
@@ -116,10 +116,10 @@ async def start_callback(e):
     f"- (`{chat.id}`)"
     for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
-        buttons = [Button.url(chat.title, f'https://t.me/{chat.username}' if chat and chat.username else f'https://t.me/c/{str(chat.id).replace("-100", "")}/1', icon=5877700484453634587, style=blue) for chat in chats]
-        buttons = chunk_list(buttons, 2)
-        buttons.append(_back)
-        return await e.edit(text, buttons=buttons)
+        _buttons = [Button.url(chat.title, f'https://t.me/{chat.username}' if chat and chat.username else f'https://t.me/c/{str(chat.id).replace("-100", "")}/1', icon=5877700484453634587, style=blue) for chat in chats]
+        _buttons = chunk_list(_buttons, 2)
+        _buttons.append(_back)
+        return await e.edit(text, buttons=_buttons)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
         await e.edit('ارسل الان يوزر او ايدي القناة', buttons=_back)
