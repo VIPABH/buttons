@@ -66,7 +66,8 @@ async def start_callback(e):
     for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
         buttons = [[Button.url(chat.title, f'https://t.me/{chat.username}' if chat and chat.username else f'https://t.me/c/{str(chat.id).replace("-100", "")}/1')] for chat in chats]
-        return await e.edit(text, buttons=[buttons, _back[0]])
+        buttons.append(_back[0])
+        return await e.edit(text, buttons=buttons)
     elif data.startswith('add'):
         message.setdefault(e.sender_id, {})['step'] = data
         await e.edit('ارسل الان يوزر او ايدي القناة', buttons=_back)
