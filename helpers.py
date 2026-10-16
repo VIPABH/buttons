@@ -89,7 +89,7 @@ async def custom_emoji(e, text, emoji, buttons=None):
     selected = random.choice(emoji) if isinstance(emoji, (list, tuple)) else emoji
     await e.reply(
         f'{text} <tg-emoji emoji-id="{selected}">⬆️</tg-emoji>', 
-        buttons=buttons)
+        buttons=buttons, parse_mode='html')
 def profile(user_id):
     data = r.get(f"user:{user_id}")
     return json.loads(data) if data else None
