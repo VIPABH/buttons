@@ -42,7 +42,7 @@ async def _(e):
         me = await ABH.get_me()
         _me.append(me)
     else:
-        me = _me
+        me = _me[0]
     key = f"banned_users:{me.id}"
     user_id = e.sender_id
     if r.sismember(key, user_id):
@@ -78,7 +78,7 @@ async def wfffp_callback(e):
         me = await ABH.get_me()
         _me.append(me)
     else:
-        me = _me
+        me = _me[0]
     key = f"users:{me.id}"
     users_count = r.scard(key)
     if data == 'users_count':return await e.edit(f'عدد مستخدمين البوت هو ( {users_count} )', buttons=back_to_button)
@@ -638,7 +638,7 @@ async def small_filter(e):
             me = await ABH.get_me()
             _me.append(me)
         else:
-            me = _me
+            me = _me[0]
         key = f"banned_users:{me.id}"
         user_id = user.id
         ban_and_unban.pop(e.sender_id, None)
