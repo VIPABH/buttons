@@ -87,11 +87,11 @@ async def wfffp_callback(e):
     if data == 'users_count':return await e.edit(f'عدد مستخدمين البوت هو ( {users_count} )', buttons=back_to_button)
     elif data == "banned_users":
         mention = [f"( {await ment(id)} ) - ( `{id}` )" for id in r.smembers(f"banned_users:{me.id}")]
-        await e.edit(f"المستخدمين المحظورين:\n {'\n'.join(mention)}", buttons=chunked_button)
+        await e.edit(f"المستخدمين المحظورين:\n {'\n'.join(mention)}", buttons=back_to_button)
     elif data == "users":
         mention = [f"( {await ment(id)} ) - ( `{id}` )" for id in r.smembers(f"users:{me.id}")]
-        await e.edit(f"المستخدمين:\n {'\n'.join(mention)}", buttons=chunked_button)
-    elif data == 'back_button':await e.edit('تفضل ابنل الهاش', buttons=chunked_button)
+        await e.edit(f"المستخدمين:\n {'\n'.join(mention)}", buttons=back_to_button)
+    elif data == 'back_button':await e.edit('تفضل ابنل الهاش', buttons=back_to_button)
     else:
         ban_and_unban[e.sender_id] = data
         await e.edit('ارسل الان ايدي او يوزر المستخدم', buttons=back_to_button)
