@@ -60,6 +60,7 @@ def start_button(e):
     return button
 wfffp_button =[
     Button.inline('عدد المستخدمين', data='users_count', style=blue, icon=5305355874187880345),
+    Button.inline('المستخدمين', data='users', style=blue, icon=5305355874187880345),
     Button.inline('المحظورين', data='banned_users', style=blue, icon=5305355874187880345),
     Button.inline('حظر شخص', data='ban_user', style=red, icon=5305355874187880345),
     Button.inline('الغاء حظر شخص', data='un_ban_user', style=green, icon=5305355874187880345),
@@ -72,7 +73,7 @@ async def start(e):
     if e.sender_id == wfffp:return await send(e, 'اهلا عزيزي ابن هاشم , شنو تحب تسوي', buttons=chunked_button)
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط', buttons=start_button(e))
 ban_and_unban = {}
-@ABH.on(events.CallbackQuery(pattern=b'^(users_count|banned_users|ban_user|un_ban_user|back_button)$'))
+@ABH.on(events.CallbackQuery(pattern=b'^(users_count|banned_users|ban_user|un_ban_user|back_button|users)$'))
 async def wfffp_callback(e):
     if e.sender_id != wfffp:return
     data = e.data.decode('utf-8')
@@ -85,8 +86,11 @@ async def wfffp_callback(e):
     users_count = r.scard(key)
     if data == 'users_count':return await e.edit(f'عدد مستخدمين البوت هو ( {users_count} )', buttons=back_to_button)
     elif data == "banned_users":
-        mention = [f"( {await ment(id)} ) - ( `{id}` )" for id in r.smembers(key)]
-        await e.edit(f"المستخدمين المحظورين:\n {'\n'.join(mention)}")
+        mention = [f"( {await ment(id)} ) - ( `{id}` )" for id in r.smembers(f"banned_users:{me.id}")]
+        await e.edit(f"المستخدمين المحظورين:\n {'\n'.join(mention)}", buttons=chunked_button)
+    elif data == "users":
+        mention = [f"( {await ment(id)} ) - ( `{id}` )" for id in r.smembers(f"users:{me.id}")]
+        await e.edit(f"المستخدمين:\n {'\n'.join(mention)}", buttons=chunked_button)
     elif data == 'back_button':await e.edit('تفضل ابنل الهاش', buttons=chunked_button)
     else:
         ban_and_unban[e.sender_id] = data
