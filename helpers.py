@@ -231,3 +231,32 @@ def ordinal_arabic_female(n):
     ten_part = (n // 10) * 10
     one_part = n % 10
     return f"{units_compound[one_part]} و{tens[ten_part]}"
+def get_message_type(_msg: Message) -> str:
+    if _msg is None:
+        return
+    if isinstance(_msg.media, MessageExtendedMediaPreview) or isinstance(_msg.media, MessageExtendedMedia):
+        inner = _msg.media.media
+        return get_message_type(Message(id=_msg.id, media=inner))
+    if isinstance(_msg.media, MessageMediaPhoto):
+        return "الصور" 
+    if isinstance(_msg.media, MessageMediaDocument):
+        for attr in _msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeAnimated):
+                return "المتحركات"
+        for attr in _msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeVideo):
+                if getattr(attr, "round_message", False):
+                    return "الفويس نوت"
+                return "الفيديوهات"  
+        for attr in _msg.media.document.attributes:
+            if isinstance(attr, DocumentAttributeSticker):
+                return "الستيكرات" 
+            if isinstance(attr, DocumentAttributeAudio):
+                return "الفويسات" if getattr(attr, "voice", False) else "الصوتيات"
+        mime = _msg.media.document.mime_type or ""
+        if mime.startswith("image/"):
+            return "الصور" 
+        elif mime.startswith("video/"):
+            return "الفيديوهات"  
+        elif mime.startswith("audio/"):
+            return "الصوتيات" 
