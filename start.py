@@ -43,7 +43,7 @@ async def _(e):
         _me.append(me)
     else:
         me = _me
-    key = f"users:{me.id}"
+    key = f"banned_users:{me.id}"
     user_id = e.sender_id
     if r.sismember(key, user_id):
         await e.reply('عذرا صديقي انت محظور من البوت \n تفضل راسل المطور لرفع الحظر @k_4x1')
