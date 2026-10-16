@@ -66,7 +66,11 @@ async def start_callback(e):
         for ch in info[id]:
             ids.append(int(ch))
         chats = await return_names(ids)
-        row_names = [f'القناة {ordinal_arabic_female(num) or {num2words(num, lang="ar", )}} - ( {f'https://t.me/{chat.username}' if chat and chat.username else chat.title} ) - ( `{chat.id}` )' for num, chat in enumerate(chats, start=1)]
+        row_names = [
+    f"القناة {ordinal_arabic_female(num) or num2words(num, lang='ar')} - "
+    f"{f'[{chat.title}](https://t.me/{chat.username})' if chat and chat.username else chat.title} "
+    f"- (`{chat.id}`)"
+    for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
         return await e.edit(text, buttons=_back)
     elif data.startswith('add'):
