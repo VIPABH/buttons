@@ -410,7 +410,7 @@ async def small_filter(e):
         message.setdefault(e.sender_id, {}).setdefault('text', [])
         message[e.sender_id]['text'].append(text)
         await _send(e)
-        await custom_emoji(e, 'تم اضافة النص ', buttons=buttons(e))
+        await custom_emoji(e, 'تم اضافة النص ', 5469770542288478598, buttons=buttons(e))
         del message[e.sender_id]['step']
     elif step == 'media':
         if e.media:
