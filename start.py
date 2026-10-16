@@ -55,7 +55,7 @@ def start_button(e):
         button.append([Button.inline('حذف قناة', data='remove_channel', style=red, icon=5258130763148172425)])
         button[1].append(Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213))
     else:
-        button.append(Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213))
+        button.append([Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213)])
     button.append([Button.inline('الرسائل المحفوظة', data="post_message", style=blue, icon=5328162777594868795), Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997)])
     return button
 wfffp_button =[
