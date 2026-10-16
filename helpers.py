@@ -186,7 +186,7 @@ async def send(e, text, buttons=None, id=None, edit=None):
         return await e.edit(text, buttons=buttons)
     msg = await e.reply(text, buttons=buttons)
     return msg
-def chunk_list(lst, n):
+def chunk_list(lst, n=2):
     return [lst[i:i + n] for i in range(0, len(lst), n)]
 def lprint(*args, **kwargs):
     formatted_args = [str(arg) for arg in args]
