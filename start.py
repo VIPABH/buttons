@@ -68,7 +68,7 @@ async def start_callback(e):
         chats = await return_names(ids)
         row_names = [
     f"القناة {ordinal_arabic_female(num) or num2words(num, lang='ar')} - "
-    f"{f'[{chat.title}](https://t.me/{chat.username})' if chat and chat.username else chat.title} "
+    f"{f'( [{chat.title}](https://t.me/{chat.username}) )' if chat and chat.username else chat.title} "
     f"- (`{chat.id}`)"
     for num, chat in enumerate(chats, start=1)]
         text += '\n'.join(row_names)
@@ -130,17 +130,17 @@ def buttons(e):
             Button.inline('حذف الكل', data='del_all', icon=5465665476971471368, style=red),
             Button.inline('تعديل معين', data='delete', icon=5229113891081956317, style=blue),
                 ])
-    if str(e.sender_id) in info and info[str(e.sender_id)].keys():
-        if not post_num:
-            rows.append([
-                Button.inline('تم', data='done', icon=5429501538806548545, style=green),
-                Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
-                ])
-        else:
-            rows.append([
-                Button.inline('تم', data='done', icon=5429501538806548545, style=green),
-                Button.inline('حذف الرسالة', data=f'delete_message:{post_num}', icon=5408832111773757273, style=red),
-                ])
+        if str(e.sender_id) in info and info[str(e.sender_id)].keys():
+            if not post_num:
+                rows.append([
+                    Button.inline('تم', data='done', icon=5429501538806548545, style=green),
+                    Button.inline('حفظ الرسالة', data='save_message', icon=5242683801598967626, style=green),
+                    ])
+            else:
+                rows.append([
+                    Button.inline('تم', data='done', icon=5429501538806548545, style=green),
+                    Button.inline('حذف الرسالة', data=f'delete_message:{post_num}', icon=5408832111773757273, style=red),
+                    ])
     rows.append(_back)
     return rows
 @ABH.on(events.NewMessage(pattern=r'^/create_message|انشاء رسالة$'))
@@ -588,7 +588,7 @@ async def handle_yes_no(e):
         if not chat_info[user_key]:
             del chat_info[user_key]
         return await e.edit('تم اضافة القناة بنجاح🌚', buttons=_back)
-    elif data == 'no':
+    elif arg == 'no':
         if chan_key not in chat_info.get(user_key, {}):
             return await e.edit("جلسة اضافة القناة انتهت, عيد المحاولة!", buttons=_back)
         chat_info[user_key].pop(chan_key, None)
