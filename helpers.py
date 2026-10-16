@@ -85,7 +85,7 @@ async def ment(entity):
   first_name = getattr(user, "first_name", "مستخدم") if user else "مستخدم"
   name = p.get("name") if p and p.get("name") else first_name
   return f"[{name}](tg://user?id={user_id})"
-async def custom_emoji(e, text, emoji, Buttons=None):
+async def custom_emoji(e, text, emoji, buttons=None):
     selected = random.choice(emoji) if isinstance(emoji, (list, tuple)) else emoji
     await e.reply(
         f'{text} <tg-emoji emoji-id="{selected}">⬆️</tg-emoji>', 
