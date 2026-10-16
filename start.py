@@ -14,6 +14,7 @@ from client import *
 info = create('info.json')
 msg = create('message.json')
 not_allowed = ['الفويسات', 'الستيكرات', 'الفويس نوت', 'المتحركات']
+_me = []
 def save_data():
     try:
         with open('info.json', 'w', encoding='utf-8') as f:
@@ -34,6 +35,19 @@ _back = [Button.inline('أظهار الازرار', data='_back', style=green, i
 async def is_user_check(e):
     await is_user(e)
     await small_filter(e)
+@ABH.on(events.CallbackQuery)
+async def _(e):
+    await is_user(e)
+    if not _me:
+        me = await ABH.get_me()
+        _me.append(me)
+    else:
+        me = _me
+    key = f"users:{me.id}"
+    user_id = e.sender_id
+    if r.sismember(key, user_id):
+        await e.reply('عذرا صديقي انت محظور من البوت \n تفضل راسل المطور لرفع الحظر @k_4x1')
+        raise events.StopPropagation
 def start_button(e):
     button = []
     if str(e.sender_id) in info and info[str(e.sender_id)].keys():
@@ -42,9 +56,39 @@ def start_button(e):
         button[1].append(Button.inline('اضف قناة', data='add_channel', style=green, icon=5280993797482750213))
     button.append([Button.inline('الرسائل المحفوظة', data="post_message", style=blue, icon=5328162777594868795), Button.inline('انشاء رسالة', data="create_message", style=blue, icon=5222040745665379997)])
     return button
+wfffp_button =[
+    Button.inline('عدد المستخدمين', data='users_count', style=blue, icon=5305355874187880345),
+    Button.inline('المحظورين', data='banned_users', style=blue, icon=5305355874187880345),
+    Button.inline('حظر شخص', data='ban_user', style=red, icon=5305355874187880345),
+    Button.inline('الغاء حظر شخص', data='un_ban_user', style=green, icon=5305355874187880345),
+]
+chunked_button = chunk_list(wfffp_button)
+chunked_button.append(_back)
+back_to_button = [Button.inline('ارجع للازرار', data='back_button', style=red, icon=5305355874187880345)]
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
+    if e.sendera_id == wfffp:return await send(e, 'اهلا عزيزي ابن هاشم , شنو تحب تسوي', buttons=chunked_button)
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط', buttons=start_button(e))
+ban_and_unban = {}
+@ABH.on(events.CallbackQuery(pattern=b'^(users_count|banned_users|ban_user|un_ban_user|back_button)$'))
+async def wfffp_callback(e):
+    if e.sender_id != wfffp:return
+    data = e.data.decode('utf-8')
+    if not _me:
+        me = await ABH.get_me()
+        _me.append(me)
+    else:
+        me = _me
+    key = f"users:{me.id}"
+    users_count = r.scard(key)
+    if data == 'users_count':return await e.edit(f'عدد مستخدمين البوت هو ( {users_count} )', buttons=back_to_button)
+    elif data == "banned_users":
+        mention = [f"( {await ment(id)} ) - ( `{id}` )" for id in r.smembers(key)]
+        await e.edit(f"المستخدمين المحظورين:\n {'\n'.join(mention)}")
+    elif data == 'back_button':await e.edit('تفضل ابنل الهاش', buttons=chunked_button)
+    else:
+        ban_and_unban[e.sender_id] = data
+        await e.edit('ارسل الان ايدي او يوزر المستخدم', buttons=back_to_button)
 message = {}
 async def return_names(ids):
     return await ABH.get_entity(list(ids))
@@ -576,6 +620,34 @@ async def small_filter(e):
         if len(text) > 8:return await e.reply('صديقي حتى تكون العملية دقيقة لازم تضيف الاسم ب اقل من 8 احرف')
         b = [Button.inline('احفظ', data=f'ok_save:{text}', style=green, icon=5469770542288478598), Button.inline('الغاء', data='unsave_message', style=red, icon=5465665476971471368)]
         return await e.reply(f'هل تريد حفظ الرسالة ب اسم ( {text} )', buttons=b)
+    step = ban_and_unban.get(e.sender_id, None)
+    if step in ('ban_user', 'un_ban_user'):
+        text = e.text.strip()
+        target = None
+        if text.isdigit():
+            target = int(text)
+        elif text.startswith(('@', 'https://t.me/')):
+            target = text            
+        if not target:
+            return await e.reply('⚠️ عذراً، يرجى إرسال أيدي المستخدم أو يوزره بشكل صحيح.', buttons=back_to_button)
+        try:
+            user = await ABH.get_entity(target)
+        except Exception:
+            return await e.reply('❌ عذراً، لم أتمكن من العثور على حساب هذا المستخدم.')
+        if not _me:
+            me = await ABH.get_me()
+            _me.append(me)
+        else:
+            me = _me
+        key = f"banned_users:{me.id}"
+        user_id = user.id
+        ban_and_unban.pop(e.sender_id, None)
+        if step == "ban_user":
+            r.sadd(key, user_id)
+            return await e.reply(f'✅ تم حظر ( {await ment(user)} ) بنجاح.')
+        else:
+            r.srem(key, user_id)
+            return await e.reply(f'✅ تم إلغاء حظر ( {await ment(user)} ) بنجاح.')
 @ABH.on(events.CallbackQuery(pattern=r'^(yes|no|ok_delete_channle|post):(-?\d+)$'))
 async def handle_yes_no(e):
     arg = e.pattern_match.group(1).decode('utf-8')
