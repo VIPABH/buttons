@@ -67,7 +67,7 @@ chunked_button.append(_back)
 back_to_button = [Button.inline('ارجع للازرار', data='back_button', style=red, icon=5305355874187880345)]
 @ABH.on(events.NewMessage(pattern=r'^/start'))
 async def start(e):
-    if e.sendera_id == wfffp:return await send(e, 'اهلا عزيزي ابن هاشم , شنو تحب تسوي', buttons=chunked_button)
+    if e.sender_id == wfffp:return await send(e, 'اهلا عزيزي ابن هاشم , شنو تحب تسوي', buttons=chunked_button)
     await send(e, f'اهلا عزيزي ( {await ment(e)} ) اني بوت مال ازرار استخدامي سهل و بسيط', buttons=start_button(e))
 ban_and_unban = {}
 @ABH.on(events.CallbackQuery(pattern=b'^(users_count|banned_users|ban_user|un_ban_user|back_button)$'))
