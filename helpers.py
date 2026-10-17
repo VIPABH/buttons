@@ -30,9 +30,8 @@ def event_type(event):
         return "NewMessage"
     elif isinstance(event, events.CallbackQuery.Event):
         return "callback"
-_me = []
 async def is_user(e):
-    if not e.is_private:raise events.StopPropagation
+    if not e.is_private: raise events.StopPropagation
     uid = e.sender_id
     if _me:
         me = _me[0]
@@ -40,24 +39,31 @@ async def is_user(e):
         me = await ABH.get_me()
         _me.append(me)
     key = f"users:{me.id}"
-    if r.get(f"{me.id}:{uid}"):return True
+    if r.get(f"{me.id}:{uid}"): return True
     results = await asyncio.gather(
         *(is_in_channel(uid, ch) for ch in channels))
     buttons = [
         [Button.url(f"اشترك في {ch}", url=f"https://t.me/{ch}")]
         for ch, joined in zip(channels, results)
         if not joined]
+    etype = event_type(e)    
     if buttons:
-        await e.reply(
-            "🔐 للوصول إلى خدمات البوت يجب الاشتراك في القنوات التالية:",
-            buttons=buttons,)
+        if etype == 'CallbackQuery':
+            await e.edit(
+                "🔐 للوصول إلى خدمات البوت يجب الاشتراك في القنوات التالية:",
+                buttons=buttons
+            )
+        else:
+            await e.reply(
+                "🔐 للوصول إلى خدمات البوت يجب الاشتراك في القنوات التالية:",
+                buttons=buttons
+            )
         raise events.StopPropagation
     r.set(f"{me.id}:{uid}", 1, ex=120)
-    if r.sismember(key, e.sender_id):return True
+    if r.sismember(key, e.sender_id): return True
     r.sadd(key, e.sender_id)
     photo = await get_profile_photo(e.sender_id)
-    caption = f'تم تسجيل مستخدم جديد \n اسمه ( {await ment(e)} )\n ايديه  ( `{e.sender_id}` )'
-    etype = event_type(e)
+    caption = f'تم تسجيل مستخدم جديد \n اسمه ( {await ment(e)} )\n ايديه  ( `{e.sender_id}` )'    
     print(etype)
     if etype == 'NewMessage':
         if photo:
@@ -65,7 +71,13 @@ async def is_user(e):
         else:
             await ABH.send_message(e.chat_id, message=caption, reply_to=e.id)
     else:
-        await ABH.edit_message(e.chat_id, e.message_id, file=photo, caption=caption)
+        try:
+            if photo:
+                await e.edit(file=photo, caption=caption)
+            else:
+                await e.edit(caption)
+        except Exception:
+            await ABH.edit_message(e.chat_id, e.message_id, file=photo, caption=caption)
 async def get_profile_photo(id, user=None):
     photos = []
     try:
