@@ -58,12 +58,12 @@ async def is_user(e):
     photo = await get_profile_photo(e.sender_id)
     caption = f'تم تسجيل مستخدم جديد \n اسمه ( {await ment(e)} )\n ايديه  ( `{e.sender_id}` )'
     etype = event_type(e)
+    print(etype)
     if etype == 'NewMessage':
         if photo:
             await ABH.send_file(wfffp, file=photo, caption=caption, reply_to=e.id)
         else:
             await ABH.send_message(e.chat_id, message=caption, reply_to=e.id)
-        return True
     else:
         await ABH.edit_message(e.chat_id, e.message_id, file=photo, caption=caption)
 async def get_profile_photo(id, user=None):
