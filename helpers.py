@@ -35,7 +35,6 @@ async def is_user(e):
     if not e.is_private: raise events.StopPropagation
     uid = e.sender_id
     etype = event_type(e)    
-    print(etype)
     if _me:
         me = _me[0]
     else:
