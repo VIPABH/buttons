@@ -30,6 +30,7 @@ def event_type(event):
         return "NewMessage"
     elif isinstance(event, events.CallbackQuery.Event):
         return "callback"
+_me = []
 async def is_user(e):
     if not e.is_private: raise events.StopPropagation
     uid = e.sender_id
