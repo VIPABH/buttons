@@ -25,10 +25,20 @@ async def is_in_channel(user_id, channel_username):
         return False
     except:
         return False
+def event_type(event):
+    if isinstance(event, events.NewMessage.Event):
+        return "NewMessage"
+    elif isinstance(event, events.CallbackQuery.Event):
+        return "callback"
+_me = []
 async def is_user(e):
     if not e.is_private:raise events.StopPropagation
     uid = e.sender_id
-    me = await ABH.get_me()
+    if _me:
+        me = _me[0]
+    else:
+        me = await ABH.get_me()
+        _me.append(me)
     key = f"users:{me.id}"
     if r.get(f"{me.id}:{uid}"):return True
     results = await asyncio.gather(
@@ -47,11 +57,15 @@ async def is_user(e):
     r.sadd(key, e.sender_id)
     photo = await get_profile_photo(e.sender_id)
     caption = f'تم تسجيل مستخدم جديد \n اسمه ( {await ment(e)} )\n ايديه  ( `{e.sender_id}` )'
-    if photo:
-        await ABH.send_file(wfffp, file=photo, caption=caption, reply_to=e.id)
+    etype = event_type(e)
+    if etype == 'NewMessage':
+        if photo:
+            await ABH.send_file(wfffp, file=photo, caption=caption, reply_to=e.id)
+        else:
+            await ABH.send_message(e.chat_id, message=caption, reply_to=e.id)
+        return True
     else:
-        await ABH.send_message(e.chat_id, message=caption, reply_to=e.id)
-    return True
+        await ABH.edit_message(e.chat_id, e.message_id, file=photo, caption=caption)
 async def get_profile_photo(id, user=None):
     photos = []
     try:
