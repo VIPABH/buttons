@@ -50,7 +50,7 @@ async def is_user(e):
         for ch, joined in zip(channels, results)
         if not joined]
     if buttons:
-        if etype == 'CallbackQuery':
+        if etype == 'callback':
             await e.edit(
                 "🔐 للوصول إلى خدمات البوت يجب الاشتراك في القنوات التالية:",
                 buttons=buttons
